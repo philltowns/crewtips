@@ -202,6 +202,7 @@ const DBX_REDIRECT   = 'https://philltowns.github.io/crewtips/';
 const DBX_FILE_PATH  = '/data.json';
 const DBX_TOKEN_KEY  = 'crewtips_dbx_token';
 const DBX_CACHE_KEY  = 'crewtips_dbx_cache';
+const DBX_PUBLIC_URL = 'https://www.dropbox.com/scl/fi/4tqydwmwra00t4g79l723/data.json?rlkey=i3e93b3ntl3ayhdygdpxtvz9w&st=j7zowz7n&dl=1';
 
 // ─────────────────────────────────────────────
 // APP STATE
@@ -322,22 +323,25 @@ function loadCached() {
 }
 
 async function fetchLatest() {
-  const token = getDbxToken();
-  if (token) {
-    const data = await readFromDropbox();
-    if (data && data.faqs) {
-      appData = data;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-      render();
-      showSyncBar('Content updated ✓', 'ok');
-      return;
+  // Always try public Dropbox URL first — works for all users including pilots
+  try {
+    const res = await fetch(DBX_PUBLIC_URL + '&v=' + Date.now());
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.faqs) {
+        appData = json;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        localStorage.setItem(DBX_CACHE_KEY, JSON.stringify(appData));
+        render();
+        showSyncBar('Content updated ✓', 'ok');
+        return;
+      }
     }
-    // File doesn't exist in Dropbox yet — upload seed data
-    const uploaded = await writeToDropbox(appData);
-    if (uploaded) showSyncBar('Dropbox initialised ✓', 'ok');
-    return;
+  } catch(e) {
+    console.warn('Public Dropbox fetch failed:', e);
   }
-  // No token — try static data.json fallback
+
+  // Fall back to cached data or static seed
   try {
     const res = await fetch('./data.json?v=' + Date.now());
     if (!res.ok) throw new Error('not ok');
