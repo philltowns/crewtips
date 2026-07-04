@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="CrewTips"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#c8102e"/>
+  <meta name="description" content="Virgin Atlantic pilot knowledge base"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <title>CrewTips</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #c8102e; --red-dark: #a00c24; --red-light: #f9e5e8;
+      --navy: #0a1628; --navy2: #16243e; --white: #ffffff;
+      --surface: #f4f5f7; --card: #ffffff; --border: #e4e7ed;
+      --text: #0f1923; --text2: #4a5568; --text3: #8a96a8;
+      --radius: 12px; --radius-sm: 8px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+    html, body { height: 100%; font-family: var(--font); background: var(--surface); color: var(--text); -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
+    #app { display: flex; flex-direction: column; height: 100%; max-width: 680px; margin: 0 auto; }
+    .header { background: var(--red); padding: calc(var(--safe-top) + 14px) 16px 0; flex-shrink: 0; position: relative; overflow: hidden; }
+    .header::after { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.06); border-radius: 50%; pointer-events: none; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark { width: 34px; height: 34px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.5px; border: 1px solid rgba(255,255,255,0.25); flex-shrink: 0; }
+    .brand-name { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+    .brand-sub { font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 0.3px; margin-top: 1px; }
+    .admin-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 20px; cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 5px; flex-shrink: 0; transition: background 0.15s; }
+    .admin-btn:active { background: rgba(255,255,255,0.25); }
+    .search-wrap { padding: 0 16px 14px; position: relative; }
+    .search-inner { position: relative; }
+    .search-inner input { width: 100%; padding: 10px 14px 10px 38px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-family: var(--font); background: rgba(255,255,255,0.18); color: #fff; outline: none; }
+    .search-inner input::placeholder { color: rgba(255,255,255,0.6); }
+    .search-inner input:focus { background: rgba(255,255,255,0.25); }
+    .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); pointer-events: none; font-size: 16px; }
+    .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); border: none; color: #fff; width: 20px; height: 20px; border-radius: 50%; font-size: 13px; cursor: pointer; display: none; align-items: center; justify-content: center; font-family: var(--font); line-height: 1; }
+    .search-clear.visible { display: flex; }
+    .tabs { display: flex; border-top: 1px solid rgba(255,255,255,0.15); }
+    .tab-btn { flex: 1; padding: 10px 4px; background: none; border: none; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500; font-family: var(--font); cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .tab-btn.active { color: #fff; border-bottom-color: #fff; }
+    .tab-count { background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+    .tab-btn.active .tab-count { background: rgba(255,255,255,0.35); }
+    .sync-bar { font-size: 11px; font-weight: 500; text-align: center; padding: 4px; flex-shrink: 0; display: none; }
+    .sync-bar.visible { display: block; }
+    .sync-bar.ok { background: #e8f5e9; color: #2e7d32; }
+    .sync-bar.offline { background: #fff3e0; color: #e65100; }
+    .sync-bar.error { background: #fce4ec; color: #c62828; }
+    .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px calc(var(--safe-bottom) + 16px); }
+    .section-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; padding: 0 4px; }
+    .faq-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+    .faq-header { padding: 13px 14px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .faq-header:active { background: var(--surface); }
+    .faq-q { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.45; }
+    .faq-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .faq-cat { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.2px; }
+    .faq-chevron { color: var(--text3); font-size: 14px; transition: transform 0.22s ease; line-height: 1; }
+    .faq-chevron.open { transform: rotate(180deg); }
+    .faq-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); font-size: 13.5px; line-height: 1.7; color: var(--text2); }
+    .faq-body.open { display: block; }
+    .faq-body p { margin-top: 10px; }
+    .faq-body ol { margin: 8px 0 8px 18px; display: flex; flex-direction: column; gap: 4px; }
+    .faq-body strong { color: var(--text); font-weight: 500; }
+    .faq-path { display: inline-flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; font-size: 12px; color: var(--text2); margin-top: 10px; font-family: 'SF Mono', 'Fira Code', monospace; line-height: 1.4; }
+    .cat-fusion { background: #e6f1fb; color: #185FA5; }
+    .cat-roster { background: #eaf3de; color: #3B6D11; }
+    .cat-pay { background: #faeeda; color: #854F0B; }
+    .cat-medical { background: #FAECE7; color: #993C1D; }
+    .cat-it { background: #eeedfe; color: #3C3489; }
+    .cat-general { background: #f0ede5; color: #5F5E5A; }
+    .tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+    .tip-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .tip-body { flex: 1; min-width: 0; }
+    .tip-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.35; }
+    .tip-text { font-size: 13px; color: var(--text2); line-height: 1.65; }
+    .tip-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 7px; letter-spacing: 0.2px; }
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .empty p { font-size: 14px; line-height: 1.6; }
+    mark { background: #fff176; color: inherit; border-radius: 2px; padding: 0 1px; }
+    .see-also-box { margin-top: 12px; border: 1.5px solid var(--red-light); border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; background: #fff9f9; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+    .see-also-box:active { background: var(--red-light); }
+    .see-also-label { font-size: 10px; font-weight: 600; color: var(--red); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px; }
+    .see-also-inner { display: flex; align-items: center; gap: 10px; }
+    .see-also-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .see-also-text { flex: 1; }
+    .see-also-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .see-also-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .see-also-arrow { font-size: 20px; color: var(--red); font-weight: 300; flex-shrink: 0; }
+    .inline-tip-link { display: inline; background: none; border: none; color: var(--red); font-size: inherit; font-family: var(--font); font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+    .overlay { position: fixed; inset: 0; background: rgba(10,22,40,0.65); z-index: 200; display: flex; align-items: flex-end; padding-bottom: var(--safe-bottom); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .sheet { background: var(--white); border-radius: 20px 20px 0 0; width: 100%; max-width: 680px; margin: 0 auto; max-height: 90vh; display: flex; flex-direction: column; transform: translateY(40px); transition: transform 0.25s ease; }
+    .overlay.open .sheet { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+    .sheet-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sheet-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .sheet-close { background: var(--surface); border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: var(--font); line-height: 1; }
+    .sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 16px; }
+    .admin-tabs { display: flex; background: var(--surface); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; gap: 2px; flex-wrap: wrap; }
+    .admin-tab { flex: 1; padding: 7px 4px; background: none; border: none; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: var(--font); transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .admin-tab.active { background: var(--white); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .field { margin-bottom: 12px; }
+    .field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+    .field input, .field select, .field textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font); color: var(--text); background: var(--white); outline: none; -webkit-appearance: none; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,16,46,0.1); }
+    .field textarea { resize: vertical; min-height: 100px; line-height: 1.55; }
+    .field-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+    .btn { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font); border: 1px solid var(--border); transition: background 0.15s, opacity 0.15s; }
+    .btn:active { opacity: 0.8; }
+    .btn-primary { background: var(--red); color: #fff; border-color: var(--red); flex: 1; }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-ghost { background: none; color: var(--text2); }
+    .btn-danger { background: none; color: var(--red); border-color: rgba(200,16,46,0.3); }
+    .err { font-size: 13px; color: var(--red); margin-bottom: 10px; min-height: 18px; font-weight: 500; }
+    .item-list { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; }
+    .item-list-empty { padding: 16px; text-align: center; font-size: 13px; color: var(--text3); }
+    .item-row { display: flex; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); gap: 8px; }
+    .item-row:last-child { border-bottom: none; }
+    .item-row-text { flex: 1; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-edit { background: none; border: none; font-size: 15px; cursor: pointer; padding: 2px 4px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
+    .item-del { background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; padding: 2px 4px; border-radius: 4px; line-height: 1; font-family: var(--font); flex-shrink: 0; }
+    .item-del:active { color: var(--red); background: var(--red-light); }
+    .pw-section { background: var(--surface); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; }
+    .pw-section-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
+    .cat-filter-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+    .cat-filter-btn { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: none; font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: var(--font); }
+    .cat-filter-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
+    .edit-form-header { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 12px; }
+    .toast { position: fixed; bottom: calc(var(--safe-bottom) + 20px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy); color: #fff; font-size: 13px; font-weight: 500; padding: 9px 18px; border-radius: 20px; z-index: 300; opacity: 0; transition: opacity 0.2s, transform 0.2s; white-space: nowrap; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .login-wrap { padding: 8px 0; }
+    .login-logo { width: 56px; height: 56px; background: var(--red); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; margin: 0 auto 16px; }
+    .login-wrap h3 { text-align: center; font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .login-wrap p { text-align: center; font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+    .dropbox-connect { background: #0061FF; color: #fff; border: none; border-radius: var(--radius-sm); padding: 12px 20px; font-size: 14px; font-weight: 600; font-family: var(--font); cursor: pointer; width: 100%; margin-top: 8px; }
+    .dropbox-status { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #e8f5e9; border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: #2e7d32; font-weight: 500; }
+    .pane { display: none; }
+    .pane.active { display: block; }
+    @keyframes tipPulse { 0% { box-shadow: 0 0 0 0 rgba(200,16,46,0.4); } 70% { box-shadow: 0 0 0 8px rgba(200,16,46,0); } 100% { box-shadow: 0 0 0 0 rgba(200,16,46,0); } }
+    .tip-highlight { animation: tipPulse 0.8s ease 2; border-color: var(--red) !important; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-mark">CT</div>
+        <div>
+          <div class="brand-name">CrewTips</div>
+          <div class="brand-sub">Pilot knowledge base</div>
+        </div>
+      </div>
+      <button class="admin-btn" onclick="openAdmin()">🔒 Admin</button>
+    </div>
+    <div class="search-wrap">
+      <div class="search-inner">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="searchInput" placeholder="Search FAQs, keywords…" oninput="onSearch()" autocomplete="off" autocorrect="off" spellcheck="false"/>
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-faqs" onclick="switchTab('faqs')">FAQs <span class="tab-count" id="count-faqs">0</span></button>
+      <button class="tab-btn" id="tab-tips" onclick="switchTab('tips')">Top tips <span class="tab-count" id="count-tips">0</span></button>
+    </div>
+  </header>
+  <div class="sync-bar" id="syncBar"></div>
+  <div class="content">
+    <div class="pane active" id="pane-faqs"></div>
+    <div class="pane" id="pane-tips"></div>
+  </div>
+</div>
+
+<div class="overlay" id="adminOverlay" onclick="overlayClick(event)">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title" id="sheetTitle">Admin</span>
+      <button class="sheet-close" onclick="closeAdmin()">×</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DROPBOX CONFIG
+// ─────────────────────────────────────────────
+const DBX_APP_KEY    = 'u1ijlp2gzvea5oa';
+const DBX_REDIRECT   = 'https://philltowns.github.io/crewtips/';
+const DBX_FILE_PATH  = '/data.json';
+const DBX_TOKEN_KEY  = 'crewtips_dbx_token';
+const DBX_CACHE_KEY  = 'crewtips_dbx_cache';
+
+// ─────────────────────────────────────────────
+// APP STATE
+// ─────────────────────────────────────────────
+const STORAGE_KEY  = 'crewtips_data';
+const PASS_KEY     = 'crewtips_pass';
+
+let appData      = null;
+let currentTab   = 'faqs';
+let searchTerm   = '';
+let adminAuthed  = false;
+let adminSection = 'faqs';
+let adminCatFilter = 'all';
+let editingFaqId = null;
+let editingTipId = null;
+
+// ─────────────────────────────────────────────
+// DROPBOX AUTH
+// ─────────────────────────────────────────────
+function getDbxToken() {
+  return localStorage.getItem(DBX_TOKEN_KEY);
+}
+
+function handleOAuthCallback() {
+  const hash = window.location.hash;
+  if (!hash) return;
+  const params = new URLSearchParams(hash.substring(1));
+  const token = params.get('access_token');
+  if (token) {
+    localStorage.setItem(DBX_TOKEN_KEY, token);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    showToast('Dropbox connected ✓');
+  }
+}
+
+function connectDropbox() {
+  const authUrl = 'https://www.dropbox.com/oauth2/authorize'
+    + '?client_id=' + DBX_APP_KEY
+    + '&response_type=token'
+    + '&redirect_uri=' + encodeURIComponent(DBX_REDIRECT);
+  window.location.href = authUrl;
+}
+
+function disconnectDropbox() {
+  localStorage.removeItem(DBX_TOKEN_KEY);
+  showToast('Dropbox disconnected');
+  renderAdminPanel();
+}
+
+// ─────────────────────────────────────────────
+// DROPBOX READ / WRITE
+// ─────────────────────────────────────────────
+async function readFromDropbox() {
+  const token = getDbxToken();
+  if (!token) return null;
+  try {
+    const res = await fetch('https://content.dropboxapi.com/2/files/download', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Dropbox-API-Arg': JSON.stringify({ path: DBX_FILE_PATH })
+      }
+    });
+    if (res.status === 409) return null; // file doesn't exist yet
+    if (!res.ok) throw new Error('Dropbox read error ' + res.status);
+    const json = await res.json();
+    localStorage.setItem(DBX_CACHE_KEY, JSON.stringify(json));
+    return json;
+  } catch(e) {
+    console.error('Dropbox read failed:', e);
+    return null;
+  }
+}
+
+async function writeToDropbox(data) {
+  const token = getDbxToken();
+  if (!token) return false;
+  try {
+    const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Dropbox-API-Arg': JSON.stringify({ path: DBX_FILE_PATH, mode: 'overwrite', autorename: false }),
+        'Content-Type': 'application/octet-stream'
+      },
+      body: JSON.stringify(data, null, 2)
+    });
+    if (!res.ok) throw new Error('Dropbox write error ' + res.status);
+    return true;
+  } catch(e) {
+    console.error('Dropbox write failed:', e);
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+async function init() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  handleOAuthCallback();
+  loadCached();
+  render();
+  await fetchLatest();
+}
+
+function loadCached() {
+  try {
+    const dbxCache = localStorage.getItem(DBX_CACHE_KEY);
+    if (dbxCache) { appData = JSON.parse(dbxCache); return; }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { appData = JSON.parse(raw); return; }
+  } catch(e) {}
+  appData = getDefaultData();
+}
+
+async function fetchLatest() {
+  const token = getDbxToken();
+  if (token) {
+    const data = await readFromDropbox();
+    if (data && data.faqs) {
+      appData = data;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      render();
+      showSyncBar('Content updated ✓', 'ok');
+      return;
+    }
+    // File doesn't exist in Dropbox yet — upload seed data
+    const uploaded = await writeToDropbox(appData);
+    if (uploaded) showSyncBar('Dropbox initialised ✓', 'ok');
+    return;
+  }
+  // No token — try static data.json fallback
+  try {
+    const res = await fetch('./data.json?v=' + Date.now());
+    if (!res.ok) throw new Error('not ok');
+    const json = await res.json();
+    if (json && json.faqs) {
+      appData = json;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      render();
+      showSyncBar('Content updated ✓', 'ok');
+    }
+  } catch(e) {
+    showSyncBar('Offline — showing cached content', 'offline');
+  }
+}
+
+// ─────────────────────────────────────────────
+// SAVE
+// ─────────────────────────────────────────────
+async function saveAndPublish() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+  localStorage.setItem(DBX_CACHE_KEY, JSON.stringify(appData));
+
+  const token = getDbxToken();
+  if (!token) {
+    showToast('Connect Dropbox in Settings to publish live');
+    return false;
+  }
+
+  const ok = await writeToDropbox(appData);
+  return ok;
+}
+
+// ─────────────────────────────────────────────
+// SYNC BAR
+// ─────────────────────────────────────────────
+function showSyncBar(msg, type) {
+  const bar = document.getElementById('syncBar');
+  bar.textContent = msg;
+  bar.className = 'sync-bar visible ' + (type || 'ok');
+  setTimeout(() => { bar.className = 'sync-bar'; }, 3000);
+}
+
+// ─────────────────────────────────────────────
+// SEARCH
+// ─────────────────────────────────────────────
+function onSearch() {
+  searchTerm = document.getElementById('searchInput').value.trim();
+  document.getElementById('searchClear').classList.toggle('visible', searchTerm.length > 0);
+  render();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  searchTerm = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  render();
+}
+
+function hl(text, term) {
+  if (!term) return escHtml(text);
+  const safe = escHtml(text);
+  return safe.replace(new RegExp('(' + escRe(term) + ')', 'gi'), '<mark>$1</mark>');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+function catName(key) { return (appData.categories && appData.categories[key]) || key; }
+
+function matchFaq(f, t) {
+  const tl = t.toLowerCase();
+  return f.q.toLowerCase().includes(tl) || f.a.toLowerCase().includes(tl)
+    || (f.path||'').toLowerCase().includes(tl) || catName(f.cat).toLowerCase().includes(tl)
+    || (f.keywords||'').toLowerCase().includes(tl);
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function render() { renderFaqs(); renderTips(); }
+
+function catIconBg(cat) {
+  const m = { fusion:'#e6f1fb', roster:'#eaf3de', pay:'#faeeda', medical:'#FAECE7', it:'#eeedfe', general:'#f0ede5' };
+  return m[cat] || '#f0ede5';
+}
+
+function renderFaqs() {
+  const list = searchTerm ? appData.faqs.filter(f => matchFaq(f, searchTerm)) : appData.faqs;
+  document.getElementById('count-faqs').textContent = list.length;
+  const pane = document.getElementById('pane-faqs');
+  if (!list.length) {
+    pane.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No FAQs match <strong>"' + escHtml(searchTerm) + '"</strong></p></div>';
+    return;
+  }
+  pane.innerHTML = '<div class="section-label">Questions &amp; answers</div>' + list.map(f => faqCard(f)).join('');
+}
+
+function faqCard(f) {
+  let answerHtml = ''; let inList = false;
+  f.a.split('\n').forEach(line => {
+    const processed = line.replace(/\[tip:([^\]]+)\]/g, (match, title) => {
+      const tip = appData.tips.find(t => t.title.toLowerCase() === title.toLowerCase().trim());
+      if (!tip) return '<span style="color:var(--red);font-style:italic">[tip not found: ' + escHtml(title) + ']</span>';
+      return '<button class="inline-tip-link" onclick="jumpToTip(' + tip.id + ')">' + escHtml(tip.title) + ' →</button>';
+    });
+    const m = line.match(/^(\d+)\.\s+(.+)/);
+    if (m) { if (!inList) { answerHtml += '<ol>'; inList = true; } answerHtml += '<li>' + hl(m[2], searchTerm) + '</li>'; }
+    else { if (inList) { answerHtml += '</ol>'; inList = false; } if (line.trim()) answerHtml += '<p>' + hl(processed, searchTerm) + '</p>'; }
+  });
+  if (inList) answerHtml += '</ol>';
+  const pathHtml = f.path ? '<div class="faq-path">📍 ' + escHtml(f.path) + '</div>' : '';
+  let seeAlsoHtml = '';
+  if (f.seeAlso) {
+    const tip = appData.tips.find(t => t.id == f.seeAlso);
+    if (tip) {
+      seeAlsoHtml = '<div class="see-also-box" onclick="jumpToTip(' + tip.id + ')">'
+        + '<div class="see-also-label">See also</div>'
+        + '<div class="see-also-inner">'
+        + '<div class="see-also-icon" style="background:' + catIconBg(tip.cat) + '">' + escHtml(tip.icon||'💡') + '</div>'
+        + '<div class="see-also-text"><div class="see-also-title">' + escHtml(tip.title) + '</div><div class="see-also-sub">Top tip</div></div>'
+        + '<div class="see-also-arrow">›</div></div></div>';
+    }
+  }
+  return '<div class="faq-card"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
+    + '<span class="faq-q">' + hl(f.q, searchTerm) + '</span>'
+    + '<div class="faq-right"><span class="faq-cat cat-' + f.cat + '">' + escHtml(catName(f.cat)) + '</span>'
+    + '<span class="faq-chevron" id="chev-' + f.id + '">▾</span></div></div>'
+    + '<div class="faq-body" id="body-' + f.id + '">' + answerHtml + pathHtml + seeAlsoHtml + '</div></div>';
+}
+
+function toggleFaq(id) {
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.faq-body.open').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.faq-chevron.open').forEach(c => c.classList.remove('open'));
+  if (!isOpen) { body.classList.add('open'); chev.classList.add('open'); }
+}
+
+function jumpToTip(id) {
+  switchTab('tips'); closeAdmin();
+  setTimeout(() => {
+    const el = document.getElementById('tip-' + id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('tip-highlight'); setTimeout(() => el.classList.remove('tip-highlight'), 2000); }
+  }, 120);
+}
+
+function renderTips() {
+  const list = appData.tips;
+  document.getElementById('count-tips').textContent = list.length;
+  const pane = document.getElementById('pane-tips');
+  if (!list.length) { pane.innerHTML = '<div class="empty"><div class="empty-icon">💡</div><p>No tips yet.</p></div>'; return; }
+  pane.innerHTML = '<div class="section-label">Top tips from the fleet</div>'
+    + list.map(t => '<div class="tip-card" id="tip-' + t.id + '">'
+      + '<div class="tip-icon" style="background:' + catIconBg(t.cat) + '">' + escHtml(t.icon||'💡') + '</div>'
+      + '<div class="tip-body"><div class="tip-title">' + escHtml(t.title) + '</div>'
+      + '<div class="tip-text">' + escHtml(t.text) + '</div>'
+      + '<span class="tip-badge cat-' + t.cat + '">' + escHtml(catName(t.cat)) + '</span></div></div>').join('');
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === 'tab-' + tab));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — OVERLAY
+// ─────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (adminAuthed) renderAdminPanel();
+  else renderLogin('');
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function overlayClick(e) { if (e.target === document.getElementById('adminOverlay')) closeAdmin(); }
+
+// ─────────────────────────────────────────────
+// ADMIN — LOGIN
+// ─────────────────────────────────────────────
+function getPass() { return localStorage.getItem(PASS_KEY) || ''; }
+
+function renderLogin(errMsg) {
+  document.getElementById('sheetTitle').textContent = 'Admin login';
+  document.getElementById('sheetBody').innerHTML = '<div class="login-wrap">'
+    + '<div class="login-logo">CT</div><h3>CrewTips Admin</h3>'
+    + '<p>Enter the admin password to manage content.</p>'
+    + '<div class="err" id="loginErr">' + errMsg + '</div>'
+    + '<div class="field"><label class="field-label">Password</label>'
+    + '<input type="password" id="pwInput" placeholder="Enter password" onkeydown="if(event.key===\'Enter\')checkPass()"/></div>'
+    + '<div class="btn-row"><button class="btn btn-ghost" onclick="closeAdmin()">Cancel</button>'
+    + '<button class="btn btn-primary" onclick="checkPass()">Sign in</button></div></div>';
+  setTimeout(() => { const el = document.getElementById('pwInput'); if(el) el.focus(); }, 120);
+}
+
+function checkPass() {
+  const v = document.getElementById('pwInput').value;
+  const stored = getPass();
+  if (stored && v === stored) { adminAuthed = true; adminSection = 'faqs'; adminCatFilter = 'all'; renderAdminPanel(); }
+  else if (!stored && v) { localStorage.setItem(PASS_KEY, v); adminAuthed = true; adminSection = 'faqs'; adminCatFilter = 'all'; renderAdminPanel(); showToast('Password set ✓'); }
+  else document.getElementById('loginErr').textContent = 'Incorrect password. Try again.';
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — PANEL
+// ─────────────────────────────────────────────
+function renderAdminPanel() {
+  document.getElementById('sheetTitle').textContent = 'Admin panel';
+  const secs = ['faqs','tips','add','categories','settings'];
+  document.getElementById('sheetBody').innerHTML =
+    '<div class="admin-tabs">'
+    + secs.map(s => '<button class="admin-tab ' + (adminSection===s?'active':'') + '" onclick="switchAdminSection(\'' + s + '\')">'
+      + {faqs:'FAQs',tips:'Tips',add:'Add new',categories:'Categories',settings:'Settings'}[s] + '</button>').join('')
+    + '</div><div id="adminSectionBody"></div>'
+    + '<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;display:flex;justify-content:flex-end">'
+    + '<button class="btn btn-ghost" style="font-size:12px" onclick="adminAuthed=false;renderLogin(\'\')">Sign out</button></div>';
+  renderAdminSection();
+}
+
+function switchAdminSection(sec) { adminSection = sec; editingFaqId = null; editingTipId = null; renderAdminPanel(); }
+
+// ─────────────────────────────────────────────
+// ADMIN — CATEGORY FILTER
+// ─────────────────────────────────────────────
+function catFilterBar() {
+  let html = '<div class="cat-filter-bar"><button class="cat-filter-btn ' + (adminCatFilter==='all'?'active':'') + '" onclick="adminCatFilter=\'all\';renderAdminSection()">All</button>';
+  Object.entries(appData.categories).forEach(([k,v]) => {
+    html += '<button class="cat-filter-btn ' + (adminCatFilter===k?'active':'') + '" onclick="adminCatFilter=\'' + k + '\';renderAdminSection()">' + escHtml(v) + '</button>';
+  });
+  return html + '</div>';
+}
+
+function catOptions(sel) {
+  return Object.entries(appData.categories).map(([k,v]) => '<option value="' + k + '" ' + (k===sel?'selected':'') + '>' + escHtml(v) + '</option>').join('');
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — SECTION BODY
+// ─────────────────────────────────────────────
+function renderAdminSection() {
+  const body = document.getElementById('adminSectionBody');
+
+  if (editingFaqId !== null) { const f = appData.faqs.find(x => x.id === editingFaqId); if(f) { body.innerHTML = faqEditForm(f); return; } editingFaqId = null; }
+  if (editingTipId !== null) { const t = appData.tips.find(x => x.id === editingTipId); if(t) { body.innerHTML = tipEditForm(t); return; } editingTipId = null; }
+
+  if (adminSection === 'faqs') {
+    const filtered = adminCatFilter === 'all' ? appData.faqs : appData.faqs.filter(f => f.cat === adminCatFilter);
+    body.innerHTML = catFilterBar()
+      + '<div class="item-list">'
+      + (filtered.length === 0 ? '<div class="item-list-empty">No FAQs here yet.</div>'
+        : filtered.map(f => '<div class="item-row"><span class="item-row-text">' + escHtml(f.q) + '</span>'
+          + '<span class="faq-cat cat-' + f.cat + '" style="font-size:10px;padding:2px 6px;flex-shrink:0">' + escHtml(catName(f.cat)) + '</span>'
+          + '<button class="item-edit" onclick="editingFaqId=' + f.id + ';renderAdminSection()">✏️</button>'
+          + '<button class="item-del" onclick="deleteFaq(' + f.id + ')">×</button></div>').join(''))
+      + '</div><p style="font-size:12px;color:var(--text3)">Use \'Add new\' to create a FAQ.</p>';
+
+  } else if (adminSection === 'tips') {
+    const filtered = adminCatFilter === 'all' ? appData.tips : appData.tips.filter(t => t.cat === adminCatFilter);
+    body.innerHTML = catFilterBar()
+      + '<div class="item-list">'
+      + (filtered.length === 0 ? '<div class="item-list-empty">No tips here yet.</div>'
+        : filtered.map(t => '<div class="item-row"><span style="font-size:18px;flex-shrink:0">' + escHtml(t.icon||'💡') + '</span>'
+          + '<span class="item-row-text">' + escHtml(t.title) + '</span>'
+          + '<button class="item-edit" onclick="editingTipId=' + t.id + ';renderAdminSection()">✏️</button>'
+          + '<button class="item-del" onclick="deleteTip(' + t.id + ')">×</button></div>').join(''))
+      + '</div><p style="font-size:12px;color:var(--text3)">Use \'Add new\' to create a tip.</p>';
+
+  } else if (adminSection === 'add') {
+    body.innerHTML = '<div class="field"><label class="field-label">What are you adding?</label>'
+      + '<select id="addType" onchange="renderAddForm()"><option value="faq">FAQ</option><option value="tip">Top tip</option></select></div>'
+      + '<div id="addFormBody"></div>';
+    renderAddForm();
+
+  } else if (adminSection === 'categories') {
+    const cats = Object.entries(appData.categories);
+    body.innerHTML = '<div class="item-list">'
+      + cats.map(([k,v]) => '<div class="item-row">'
+        + '<input type="text" id="catname-' + k + '" value="' + escHtml(v) + '" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:var(--font)"/>'
+        + '<button class="item-edit" onclick="saveCatName(\'' + k + '\')" title="Save">💾</button>'
+        + '<button class="item-del" onclick="deleteCategory(\'' + k + '\')">×</button></div>').join('')
+      + '</div>'
+      + '<div style="margin-top:12px;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">Add new category</div>'
+      + '<div style="display:flex;gap:8px;margin-bottom:6px">'
+      + '<input type="text" id="newCatKey" placeholder="key (e.g. hotels)" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--font)"/>'
+      + '<input type="text" id="newCatName" placeholder="Label (e.g. Hotels)" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--font)"/>'
+      + '</div><div class="err" id="catErr"></div>'
+      + '<div class="btn-row"><button class="btn btn-primary" onclick="addCategory()">Add category</button></div>'
+      + '<p style="font-size:11px;color:var(--text3);margin-top:10px">Key: lowercase, no spaces. Label: what users see.</p>';
+
+  } else if (adminSection === 'settings') {
+    const connected = !!getDbxToken();
+    body.innerHTML =
+      '<div class="pw-section">'
+      + '<div class="pw-section-title">📦 Dropbox connection</div>'
+      + (connected
+        ? '<div class="dropbox-status">✓ Dropbox connected — changes publish live</div>'
+          + '<button class="btn btn-danger" style="width:100%" onclick="disconnectDropbox()">Disconnect Dropbox</button>'
+        : '<p style="font-size:13px;color:var(--text2);margin-bottom:10px">Connect your Dropbox to publish changes live to all pilots. You only need to do this once per device.</p>'
+          + '<button class="dropbox-connect" onclick="connectDropbox()">Connect Dropbox</button>')
+      + '</div>'
+      + '<div class="pw-section">'
+      + '<div class="pw-section-title">💾 Data backup</div>'
+      + '<p style="font-size:13px;color:var(--text2);margin-bottom:10px">Download a copy of all your FAQs and tips at any time.</p>'
+      + '<div class="btn-row"><button class="btn btn-primary" onclick="exportData()">Export data now</button></div></div>'
+      + '<div class="pw-section">'
+      + '<div class="pw-section-title">🔑 Change admin password</div>'
+      + '<div class="field"><label class="field-label">Current password</label><input type="password" id="pwCurrent" placeholder="Current password"/></div>'
+      + '<div class="field"><label class="field-label">New password</label><input type="password" id="pwNew" placeholder="Min 6 characters"/></div>'
+      + '<div class="field"><label class="field-label">Confirm new password</label><input type="password" id="pwConfirm" placeholder="Repeat new password"/></div>'
+      + '<div class="err" id="pwErr"></div>'
+      + '<div class="btn-row"><button class="btn btn-primary" onclick="changePassword()">Update password</button></div></div>';
+  }
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — FAQ EDIT FORM
+// ─────────────────────────────────────────────
+function faqEditForm(f) {
+  const tipOptions = '<option value="">— None —</option>'
+    + appData.tips.map(t => '<option value="' + t.id + '" ' + (f.seeAlso == t.id ? 'selected' : '') + '>' + escHtml(t.icon||'💡') + ' ' + escHtml(t.title) + '</option>').join('');
+  return '<div class="edit-form-header">Editing FAQ</div>'
+    + '<div class="field"><label class="field-label">Question</label><input type="text" id="editQ" value="' + escHtml(f.q) + '"/></div>'
+    + '<div class="field"><label class="field-label">Category</label><select id="editCat">' + catOptions(f.cat) + '</select></div>'
+    + '<div class="field"><label class="field-label">Answer</label><textarea id="editA" rows="6">' + escHtml(f.a) + '</textarea>'
+    + '<div class="field-hint">Numbered steps: start lines with 1. 2. 3. — Inline tip link: [tip:Tip Title]</div></div>'
+    + '<div class="field"><label class="field-label">Intranet path <span style="font-weight:400;color:var(--text3)">(optional)</span></label><input type="text" id="editPath" value="' + escHtml(f.path||'') + '"/></div>'
+    + '<div class="field"><label class="field-label">Hidden keywords <span style="font-weight:400;color:var(--text3)">(comma-separated)</span></label>'
+    + '<input type="text" id="editKeywords" value="' + escHtml(f.keywords||'') + '" placeholder="e.g. JFK, Kennedy, New York"/>'
+    + '<div class="field-hint">Invisible to users but included in search.</div></div>'
+    + '<div class="field"><label class="field-label">See also tip <span style="font-weight:400;color:var(--text3)">(optional)</span></label>'
+    + '<select id="editSeeAlso">' + tipOptions + '</select></div>'
+    + '<div class="err" id="editErr"></div>'
+    + '<div class="btn-row"><button class="btn btn-ghost" onclick="editingFaqId=null;renderAdminSection()">Cancel</button>'
+    + '<button class="btn btn-primary" onclick="saveFaqEdit(' + f.id + ')">Save changes</button></div>';
+}
+
+async function saveFaqEdit(id) {
+  const q = document.getElementById('editQ').value.trim();
+  const a = document.getElementById('editA').value.trim();
+  const cat = document.getElementById('editCat').value;
+  const path = document.getElementById('editPath').value.trim();
+  const keywords = document.getElementById('editKeywords').value.trim();
+  const seeAlso = document.getElementById('editSeeAlso').value || null;
+  if (!q || !a) { document.getElementById('editErr').textContent = 'Question and answer are required.'; return; }
+  document.getElementById('editErr').textContent = 'Saving…';
+  const idx = appData.faqs.findIndex(f => f.id === id);
+  if (idx > -1) appData.faqs[idx] = { ...appData.faqs[idx], q, a, cat, path, keywords, seeAlso: seeAlso ? Number(seeAlso) : null };
+  const ok = await saveAndPublish();
+  render(); editingFaqId = null; adminSection = 'faqs'; renderAdminPanel();
+  showToast(ok ? 'FAQ updated and published ✓' : 'FAQ saved locally only');
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — TIP EDIT FORM
+// ─────────────────────────────────────────────
+function tipEditForm(t) {
+  return '<div class="edit-form-header">Editing tip</div>'
+    + '<div class="field"><label class="field-label">Title</label><input type="text" id="editTTitle" value="' + escHtml(t.title) + '"/></div>'
+    + '<div class="field"><label class="field-label">Tip text</label><textarea id="editTText" rows="5">' + escHtml(t.text) + '</textarea></div>'
+    + '<div class="field"><label class="field-label">Category</label><select id="editTCat">' + catOptions(t.cat) + '</select></div>'
+    + '<div class="field"><label class="field-label">Icon (emoji)</label><input type="text" id="editTIcon" value="' + escHtml(t.icon||'💡') + '" style="width:70px"/></div>'
+    + '<div class="err" id="editTErr"></div>'
+    + '<div class="btn-row"><button class="btn btn-ghost" onclick="editingTipId=null;renderAdminSection()">Cancel</button>'
+    + '<button class="btn btn-primary" onclick="saveTipEdit(' + t.id + ')">Save changes</button></div>';
+}
+
+async function saveTipEdit(id) {
+  const title = document.getElementById('editTTitle').value.trim();
+  const text = document.getElementById('editTText').value.trim();
+  const cat = document.getElementById('editTCat').value;
+  const icon = document.getElementById('editTIcon').value.trim() || '💡';
+  if (!title || !text) { document.getElementById('editTErr').textContent = 'Title and text are required.'; return; }
+  const idx = appData.tips.findIndex(t => t.id === id);
+  if (idx > -1) appData.tips[idx] = { ...appData.tips[idx], title, text, cat, icon };
+  const ok = await saveAndPublish();
+  render(); editingTipId = null; adminSection = 'tips'; renderAdminPanel();
+  showToast(ok ? 'Tip updated and published ✓' : 'Tip saved locally only');
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — ADD FORM
+// ─────────────────────────────────────────────
+function renderAddForm() {
+  const type = document.getElementById('addType').value;
+  const body = document.getElementById('addFormBody');
+  const tipOptions = '<option value="">— None —</option>' + appData.tips.map(t => '<option value="' + t.id + '">' + escHtml(t.icon||'💡') + ' ' + escHtml(t.title) + '</option>').join('');
+  if (type === 'faq') {
+    body.innerHTML = '<div class="field"><label class="field-label">Question</label><input type="text" id="newQ" placeholder="e.g. How do I request a duty swap?"/></div>'
+      + '<div class="field"><label class="field-label">Category</label><select id="newCat">' + catOptions('general') + '</select></div>'
+      + '<div class="field"><label class="field-label">Answer</label><textarea id="newA" placeholder="Full answer. Numbered steps: start lines with 1. 2. 3. — Inline tip: [tip:Tip Title]"></textarea></div>'
+      + '<div class="field"><label class="field-label">Intranet path <span style="font-weight:400;color:var(--text3)">(optional)</span></label><input type="text" id="newPath" placeholder="e.g. Fusion → HR Self-Service → …"/></div>'
+      + '<div class="field"><label class="field-label">Hidden keywords <span style="font-weight:400;color:var(--text3)">(comma-separated)</span></label><input type="text" id="newKeywords" placeholder="e.g. JFK, Kennedy, New York"/></div>'
+      + '<div class="field"><label class="field-label">See also tip <span style="font-weight:400;color:var(--text3)">(optional)</span></label><select id="newSeeAlso">' + tipOptions + '</select></div>'
+      + '<div class="err" id="addErr"></div>'
+      + '<div class="btn-row"><button class="btn btn-ghost" onclick="switchAdminSection(\'faqs\')">Cancel</button><button class="btn btn-primary" onclick="addFaq()">Add FAQ</button></div>';
+  } else {
+    body.innerHTML = '<div class="field"><label class="field-label">Title</label><input type="text" id="newTTitle" placeholder="Short, actionable title"/></div>'
+      + '<div class="field"><label class="field-label">Tip text</label><textarea id="newTText" placeholder="Be specific and practical."></textarea></div>'
+      + '<div class="field"><label class="field-label">Category</label><select id="newTCat">' + catOptions('general') + '</select></div>'
+      + '<div class="field"><label class="field-label">Icon (emoji)</label><input type="text" id="newTIcon" placeholder="💡" style="width:70px"/></div>'
+      + '<div class="err" id="addErr"></div>'
+      + '<div class="btn-row"><button class="btn btn-ghost" onclick="switchAdminSection(\'tips\')">Cancel</button><button class="btn btn-primary" onclick="addTip()">Add tip</button></div>';
+  }
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — CRUD
+// ─────────────────────────────────────────────
+async function addFaq() {
+  const q = document.getElementById('newQ').value.trim();
+  const a = document.getElementById('newA').value.trim();
+  const cat = document.getElementById('newCat').value;
+  const path = document.getElementById('newPath').value.trim();
+  const keywords = document.getElementById('newKeywords').value.trim();
+  const seeAlso = document.getElementById('newSeeAlso').value || null;
+  if (!q || !a) { document.getElementById('addErr').textContent = 'Question and answer are required.'; return; }
+  document.getElementById('addErr').textContent = 'Saving…';
+  appData.faqs.push({ id: Date.now(), q, cat, a, path, keywords, seeAlso: seeAlso ? Number(seeAlso) : null });
+  const ok = await saveAndPublish();
+  render(); adminSection = 'faqs'; renderAdminPanel();
+  showToast(ok ? 'FAQ added and published ✓' : 'FAQ saved locally only');
+}
+
+async function addTip() {
+  const title = document.getElementById('newTTitle').value.trim();
+  const text = document.getElementById('newTText').value.trim();
+  const cat = document.getElementById('newTCat').value;
+  const icon = document.getElementById('newTIcon').value.trim() || '💡';
+  if (!title || !text) { document.getElementById('addErr').textContent = 'Title and tip text are required.'; return; }
+  appData.tips.push({ id: Date.now(), title, text, cat, icon });
+  const ok = await saveAndPublish();
+  render(); adminSection = 'tips'; renderAdminPanel();
+  showToast(ok ? 'Tip added and published ✓' : 'Tip saved locally only');
+}
+
+async function deleteFaq(id) {
+  if (!confirm('Delete this FAQ?')) return;
+  appData.faqs = appData.faqs.filter(f => f.id !== id);
+  const ok = await saveAndPublish();
+  render(); renderAdminPanel();
+  showToast(ok ? 'FAQ deleted and published ✓' : 'FAQ deleted locally only');
+}
+
+async function deleteTip(id) {
+  if (!confirm('Delete this tip?')) return;
+  appData.tips = appData.tips.filter(t => t.id !== id);
+  const ok = await saveAndPublish();
+  render(); renderAdminPanel();
+  showToast(ok ? 'Tip deleted and published ✓' : 'Tip deleted locally only');
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — CATEGORIES
+// ─────────────────────────────────────────────
+async function saveCatName(key) {
+  const input = document.getElementById('catname-' + key);
+  if (!input) return;
+  const newName = input.value.trim();
+  if (!newName) { showToast('Name cannot be empty'); return; }
+  appData.categories[key] = newName;
+  const ok = await saveAndPublish();
+  render(); renderAdminSection();
+  showToast(ok ? 'Category updated ✓' : 'Updated locally only');
+}
+
+async function addCategory() {
+  const key = document.getElementById('newCatKey').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const name = document.getElementById('newCatName').value.trim();
+  const errEl = document.getElementById('catErr');
+  if (!key || !name) { errEl.textContent = 'Both key and label are required.'; return; }
+  if (appData.categories[key]) { errEl.textContent = 'That key already exists.'; return; }
+  if (!/^[a-z0-9-]+$/.test(key)) { errEl.textContent = 'Key must be lowercase letters, numbers, or hyphens only.'; return; }
+  appData.categories[key] = name;
+  const ok = await saveAndPublish();
+  render(); renderAdminSection();
+  showToast(ok ? 'Category added ✓' : 'Added locally only');
+}
+
+async function deleteCategory(key) {
+  const inUse = appData.faqs.some(f => f.cat === key) || appData.tips.some(t => t.cat === key);
+  if (inUse) {
+    if (!confirm('This category is used by some FAQs or tips. They will move to General. Continue?')) return;
+    appData.faqs.forEach(f => { if (f.cat === key) f.cat = 'general'; });
+    appData.tips.forEach(t => { if (t.cat === key) t.cat = 'general'; });
+  } else {
+    if (!confirm('Delete this category?')) return;
+  }
+  delete appData.categories[key];
+  const ok = await saveAndPublish();
+  render(); renderAdminSection();
+  showToast(ok ? 'Category deleted ✓' : 'Deleted locally only');
+}
+
+// ─────────────────────────────────────────────
+// ADMIN — PASSWORD
+// ─────────────────────────────────────────────
+function changePassword() {
+  const current = document.getElementById('pwCurrent').value;
+  const newPw = document.getElementById('pwNew').value;
+  const confirm = document.getElementById('pwConfirm').value;
+  const errEl = document.getElementById('pwErr');
+  if (current !== getPass()) { errEl.textContent = 'Current password is incorrect.'; return; }
+  if (newPw.length < 6) { errEl.textContent = 'New password must be at least 6 characters.'; return; }
+  if (newPw !== confirm) { errEl.textContent = 'Passwords do not match.'; return; }
+  localStorage.setItem(PASS_KEY, newPw);
+  errEl.textContent = '';
+  showToast('Password updated ✓');
+  ['pwCurrent','pwNew','pwConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+}
+
+// ─────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────
+function exportData() {
+  const json = JSON.stringify(appData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+  a.href = url; a.download = 'crewtips-export-' + ts + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Data exported ✓');
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────
+// DEFAULT DATA
+// ─────────────────────────────────────────────
+function getDefaultData() {
+  return { version:'1.0.0', categories:{ fusion:'Fusion', roster:'Roster', pay:'Pay & expenses', medical:'Medical', it:'IT & systems', general:'General' }, faqs:[], tips:[] };
+}
+
+init();
+</script>
+</body>
+</html>

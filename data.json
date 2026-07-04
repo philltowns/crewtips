@@ -1,0 +1,123 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-06-27",
+  "categories": {
+    "fusion": "Fusion",
+    "roster": "Roster",
+    "pay": "Pay & expenses",
+    "medical": "Medical",
+    "it": "IT & systems",
+    "general": "General"
+  },
+  "faqs": [
+    {
+      "id": 1,
+      "q": "How do I customise my Fusion homepage?",
+      "cat": "fusion",
+      "a": "Most pilots don't realise the Fusion homepage can be fully personalised. Many of the default icons on the landing page are irrelevant to flight crew. Here's how to edit it:\n\n1. Log in to Fusion via the VA intranet.\n2. On the homepage, look for the pencil/edit icon in the top-right corner of the icon grid.\n3. Click it to enter edit mode — icons will start to jiggle.\n4. Drag icons to rearrange, or tap × to remove ones you don't need.\n5. Use 'Add app' to pin useful shortcuts like eRoster, PaySlips, and Self-Service HR.\n6. Click 'Save layout' when done.\n\nRecommended pins for pilots: eRoster, PaySlips, HR Self-Service, Travel Bookings, and Learning Hub.",
+      "path": "Fusion → Homepage → Edit (pencil icon)",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 2,
+      "q": "Where do I find my payslips?",
+      "cat": "pay",
+      "a": "Payslips are accessed through Fusion. Once logged in, navigate to the HR Self-Service tile, then select 'Pay' and 'Payslips'. You can view and download PDFs of current and historic payslips going back several years.\n\nIf you've customised your Fusion homepage, you can pin the Payslips tile directly for one-tap access.",
+      "path": "Fusion → HR Self-Service → Pay → Payslips",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 3,
+      "q": "How do I book annual leave?",
+      "cat": "roster",
+      "a": "Annual leave is requested via eRoster. Log in to the crew portal and navigate to 'Leave Requests'. Select your preferred dates, choose the leave type (Annual Leave), and submit. You'll receive an email confirmation once approved or declined by Crew Planning.\n\nNote: leave requests during school holidays and peak trading periods (summer and Christmas) are subject to availability and are not guaranteed.",
+      "path": "Crew portal → eRoster → Leave Requests",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 4,
+      "q": "What is the process for reporting sick?",
+      "cat": "medical",
+      "a": "If you are unfit to operate a duty, you must notify the crew desk as early as possible — ideally before your planned report time, or immediately on waking if the duty is same-day.\n\nCall the crew sick line (number in your crew handbook and on the VA app). You will need:\n\n1. Your staff number\n2. The duty or flight you are unable to cover\n3. A brief reason (no detailed diagnosis required)\n4. An estimated return date if known\n\nA fit note is required for absences of 8 or more consecutive calendar days. You do not need to report fit/unfit to your AME unless your medical certificate is at risk.",
+      "path": "VA Crew App → Crew Desk (sick line)",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 5,
+      "q": "How do I claim expenses for a layover?",
+      "cat": "pay",
+      "a": "Sector pay, allowances, and layover expenses are automatically calculated and paid via payroll based on your operated duties from eRoster. You do not need to submit manual expense claims for standard per diem or hotel allowances.\n\nFor exceptional out-of-pocket expenses (e.g. medical treatment abroad, lost luggage reimbursement), claims are submitted via the Finance portal in Fusion using the Expense Claim form. Attach receipts in PDF or image format.",
+      "path": "Fusion → Finance → Expense Claims",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 6,
+      "q": "Where do I find the Operations Manual?",
+      "cat": "general",
+      "a": "The Operations Manual (OM) is hosted on the VA intranet under the Flight Operations section. It is also available through the EFB (Electronic Flight Bag) on your iPad via the Documents app — search for 'OM-A', 'OM-B', or the relevant chapter.\n\nThe OM is updated via NOTAM-style revision notices. Ensure your EFB documents are synced before each duty.",
+      "path": "Intranet → Flight Operations → Documents, or EFB → Documents",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 7,
+      "q": "How do I reset my Fusion / intranet password?",
+      "cat": "it",
+      "a": "Password resets for Fusion and VA intranet accounts are handled by IT Self-Service:\n\n1. Go to the VA IT portal (accessible externally at va-itsupport.virginatlantic.com).\n2. Click 'Forgot password' and enter your staff email.\n3. Follow the link sent to your personal email on file.\n4. If you no longer have access to your personal email, call the IT helpdesk directly.\n\nPasswords expire every 90 days. You'll get an in-app reminder 14 days before expiry.",
+      "path": "va-itsupport.virginatlantic.com → Forgot password",
+      "keywords": "",
+      "seeAlso": null
+    },
+    {
+      "id": 8,
+      "q": "How do I view my roster on the VA app?",
+      "cat": "roster",
+      "a": "Download the Virgin Atlantic Crew app from the App Store or Google Play. Sign in with your staff credentials. Your roster syncs automatically and updates whenever Crew Planning makes changes.\n\nYou can enable push notifications for roster changes under Settings → Notifications. The app also shows bidding windows and leave request status.",
+      "path": "VA Crew App → Roster",
+      "keywords": "",
+      "seeAlso": null
+    }
+  ],
+  "tips": [
+    {
+      "id": 1,
+      "title": "Customise your Fusion homepage",
+      "text": "The default Fusion homepage is built for office staff. Spend 3 minutes customising it and you'll save time every single time you log in. Pilots typically find HR Self-Service, eRoster, Payslips, and Learning Hub the most useful tiles to pin.",
+      "icon": "⚙️",
+      "cat": "fusion"
+    },
+    {
+      "id": 2,
+      "title": "Use the VA Crew App for roster checks, not the intranet",
+      "text": "The crew app syncs roster changes in near real-time and sends push notifications for amendments. The intranet portal can lag. For anything time-sensitive — a late change or day-off swap — the app is faster and more reliable.",
+      "icon": "📱",
+      "cat": "roster"
+    },
+    {
+      "id": 3,
+      "title": "Sync your EFB at home, not at the airport",
+      "text": "Your EFB syncs documents over Wi-Fi. Syncing a large OM revision on airport Wi-Fi is slow and unreliable. Sync the day before any duty to ensure you have the latest documents offline when airborne.",
+      "icon": "📄",
+      "cat": "general"
+    },
+    {
+      "id": 4,
+      "title": "Set a 90-day reminder for your intranet password",
+      "text": "Fusion and VA intranet passwords expire every 90 days. If you're on a long trip pattern or long-term leave, you can get locked out at an inconvenient time. Add a recurring reminder to renew it before expiry — it takes under 2 minutes.",
+      "icon": "🔑",
+      "cat": "it"
+    },
+    {
+      "id": 5,
+      "title": "Check your pay breakdown, not just the total",
+      "text": "Your payslip in Fusion shows a full line-by-line breakdown of sector pay, allowances, and deductions. It's worth scanning this after any complex month — training periods, command upgrades, or long-term sick — where the calculation may differ from your expectation.",
+      "icon": "💷",
+      "cat": "pay"
+    }
+  ]
+}
