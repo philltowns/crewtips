@@ -220,10 +220,11 @@
       <div class="toggle-row">
         <span class="toggle-label">Include handover time</span>
         <label class="toggle">
-          <input type="checkbox" id="handoverToggle" checked onchange="onHandoverToggle()"/>
+          <input type="checkbox" id="handoverToggle" onchange="onHandoverToggle()"/>
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <div class="field-hint" style="margin-top:6px">When enabled, a briefing period is added between each pilot changeover. This is deducted equally from all rest periods.</div>
     </div>
     <div class="field handover-duration" id="handoverDurationField">
       <label class="field-label" style="margin-top:10px">Handover duration</label>
@@ -453,7 +454,7 @@ function resetAll() {
   document.getElementById('flightDuration').value = '';
   document.getElementById('landingTime').value = '';
   document.getElementById('pfReturn').value = pilotCount === 3 ? '90' : '120';
-  document.getElementById('handoverToggle').checked = true;
+  document.getElementById('handoverToggle').checked = false;
   document.getElementById('handoverDuration').value = '10';
   document.getElementById('results').classList.remove('visible');
   onHandoverToggle();
@@ -502,6 +503,16 @@ function calculate() {
 }
 
 // ─────────────────────────────────────────────
+// ROUNDING
+// ─────────────────────────────────────────────
+function roundTo5(mins) {
+  const remainder = mins % 5;
+  if (remainder === 0) return mins;
+  if (remainder <= 2) return mins - remainder;      // round down
+  return mins + (5 - remainder);                    // round up
+}
+
+// ─────────────────────────────────────────────
 // 3-PILOT CALCULATION
 // ─────────────────────────────────────────────
 function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMins, namePF, namePM, nameR1) {
@@ -509,18 +520,21 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const numHandovers = 3;
   const totalHandoverMins = handoverMins * numHandovers;
   const restWindow = flightMins - 60; // deduct 1 hour (2 x 30 min buffers)
-  const restEach = Math.floor((restWindow - totalHandoverMins) / 3);
+
+  // Round rest per pilot to nearest 5 mins
+  const restEachRaw = (restWindow - totalHandoverMins) / 3;
+  const restEach = roundTo5(Math.floor(restEachRaw));
 
   // Anchor: PF returns pfReturnMins before landing
   const pfReturns = landing - pfReturnMins;
   const pfRestEnd = pfReturns;
   const pfRestStart = pfRestEnd - restEach;
 
-  // Handover before PF rest: Relief returns handoverMins before PF leaves
+  // Handover before PF rest
   const h2End = pfRestStart; // PF leaves
   const h2Start = h2End - handoverMins;
 
-  // PM rest ends when handover before PF begins
+  // PM rest
   const pmRestEnd = h2Start;
   const pmRestStart = pmRestEnd - restEach;
 
@@ -528,7 +542,7 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const h1End = pmRestStart; // PM leaves
   const h1Start = h1End - handoverMins;
 
-  // Relief block 1: takeoff + buffer until handover starts
+  // Relief block 1
   const r1Block1Start = takeoff + buffer;
   const r1Block1End = h1Start;
 
@@ -536,21 +550,42 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const h3Start = pfReturns;
   const h3End = h3Start + handoverMins;
 
-  // Relief block 2: after h3 until buffer before landing
+  // Relief block 2
   const r1Block2Start = h3End;
   const r1Block2End = landing - buffer;
 
+  const useHandover = handoverMins > 0;
   const blocks = [
     { type: 'buffer', label: 'All crew on deck', start: takeoff, end: takeoff + buffer, pilot: null },
     { type: 'relief', label: nameR1 + ' (rest)', start: r1Block1Start, end: r1Block1End, pilot: 'relief', name: nameR1 },
-    { type: 'handover', label: 'Handover', start: h1Start, end: h1End, pilot: null },
-    { type: 'pm', label: namePM + ' (rest)', start: pmRestStart, end: pmRestEnd, pilot: 'pm', name: namePM },
-    { type: 'handover', label: 'Handover', start: h2Start, end: h2End, pilot: null },
-    { type: 'pf', label: namePF + ' (rest)', start: pfRestStart, end: pfRestEnd, pilot: 'pf', name: namePF },
-    { type: 'handover', label: 'Handover', start: h3Start, end: h3End, pilot: null },
-    { type: 'relief2', label: nameR1 + ' (rest)', start: r1Block2Start, end: r1Block2End, pilot: 'relief', name: nameR1 },
-    { type: 'buffer', label: 'All crew on deck', start: r1Block2End, end: landing, pilot: null },
   ];
+
+  if (useHandover) {
+    blocks.push({ type: 'handover', label: 'Handover', start: h1Start, end: h1End, pilot: null });
+  } else {
+    blocks.push({ type: 'changeover', label: 'Changeover', start: h1Start, end: h1Start, pilot: null });
+  }
+
+  blocks.push({ type: 'pm', label: namePM + ' (rest)', start: pmRestStart, end: pmRestEnd, pilot: 'pm', name: namePM });
+
+  if (useHandover) {
+    blocks.push({ type: 'handover', label: 'Handover', start: h2Start, end: h2End, pilot: null });
+  } else {
+    blocks.push({ type: 'changeover', label: 'Changeover', start: h2Start, end: h2Start, pilot: null });
+  }
+
+  blocks.push({ type: 'pf', label: namePF + ' (rest)', start: pfRestStart, end: pfRestEnd, pilot: 'pf', name: namePF });
+
+  if (useHandover) {
+    blocks.push({ type: 'handover', label: 'Handover', start: h3Start, end: h3End, pilot: null });
+  } else {
+    blocks.push({ type: 'changeover', label: 'Changeover', start: h3Start, end: h3Start, pilot: null });
+  }
+
+  blocks.push(
+    { type: 'relief2', label: nameR1 + ' (rest)', start: r1Block2Start, end: r1Block2End, pilot: 'relief', name: nameR1 },
+    { type: 'buffer', label: 'All crew on deck', start: r1Block2End, end: landing, pilot: null }
+  );
 
   return blocks;
 }
@@ -563,7 +598,10 @@ function calculate4Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const numHandovers = 2;
   const totalHandoverMins = handoverMins * numHandovers;
   const restWindow = flightMins - 60;
-  const restEach = Math.floor((restWindow - totalHandoverMins) / 2);
+
+  // Round rest per pilot to nearest 5 mins
+  const restEachRaw = (restWindow - totalHandoverMins) / 2;
+  const restEach = roundTo5(Math.floor(restEachRaw));
 
   // Anchor: PF/PM return pfReturnMins before landing
   const pfpmReturns = landing - pfReturnMins;
@@ -586,15 +624,33 @@ function calculate4Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const reliefBlock2Start = h2End;
   const reliefBlock2End = landing - buffer;
 
+  const useHandover = handoverMins > 0;
+  const rName = nameR1 + ' & ' + nameR2;
+  const pfName = namePF + ' & ' + namePM;
+
   const blocks = [
     { type: 'buffer', label: 'All crew on deck', start: takeoff, end: takeoff + buffer, pilot: null },
-    { type: 'relief', label: nameR1 + ' & ' + nameR2 + ' (rest)', start: reliefBlock1Start, end: reliefBlock1End, pilot: 'relief', name: nameR1 + ' & ' + nameR2 },
-    { type: 'handover', label: 'Handover', start: h1Start, end: h1End, pilot: null },
-    { type: 'pf', label: namePF + ' & ' + namePM + ' (rest)', start: pfpmRestStart, end: pfpmRestEnd, pilot: 'pf', name: namePF + ' & ' + namePM },
-    { type: 'handover', label: 'Handover', start: h2Start, end: h2End, pilot: null },
-    { type: 'relief2', label: nameR1 + ' & ' + nameR2 + ' (rest)', start: reliefBlock2Start, end: reliefBlock2End, pilot: 'relief', name: nameR1 + ' & ' + nameR2 },
-    { type: 'buffer', label: 'All crew on deck', start: reliefBlock2End, end: landing, pilot: null },
+    { type: 'relief', label: rName + ' (rest)', start: reliefBlock1Start, end: reliefBlock1End, pilot: 'relief', name: rName },
   ];
+
+  if (useHandover) {
+    blocks.push({ type: 'handover', label: 'Handover', start: h1Start, end: h1End, pilot: null });
+  } else {
+    blocks.push({ type: 'changeover', label: 'Changeover', start: h1Start, end: h1Start, pilot: null });
+  }
+
+  blocks.push({ type: 'pf', label: pfName + ' (rest)', start: pfpmRestStart, end: pfpmRestEnd, pilot: 'pf', name: pfName });
+
+  if (useHandover) {
+    blocks.push({ type: 'handover', label: 'Handover', start: h2Start, end: h2End, pilot: null });
+  } else {
+    blocks.push({ type: 'changeover', label: 'Changeover', start: h2Start, end: h2Start, pilot: null });
+  }
+
+  blocks.push(
+    { type: 'relief2', label: rName + ' (rest)', start: reliefBlock2Start, end: reliefBlock2End, pilot: 'relief', name: rName },
+    { type: 'buffer', label: 'All crew on deck', start: reliefBlock2End, end: landing, pilot: null }
+  );
 
   return blocks;
 }
@@ -614,23 +670,34 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
 
   blocks.forEach((block, i) => {
     const durationMins = block.end - block.start;
-    const heightPx = Math.max(36, (durationMins / flightMins) * 500);
-    const color = colorMap[block.pilot || block.type] || 'var(--border)';
-    const blockClass = 'block-' + (block.type === 'relief2' ? 'relief' : block.type);
     const isHandover = block.type === 'handover';
     const isBuffer = block.type === 'buffer';
+    const isChangeover = block.type === 'changeover';
+    const color = colorMap[block.pilot || block.type] || 'var(--border)';
+    const blockClass = 'block-' + (block.type === 'relief2' ? 'relief' : block.type);
+
+    // Changeover: render as a single tick mark, no height block
+    if (isChangeover) {
+      html += `<div class="timeline-v-block" style="height:24px;align-items:center">
+        <div class="timeline-v-time top" style="top:50%;transform:translateY(-50%)">${formatTime(block.start)}</div>
+        <div class="timeline-v-bar" style="background:var(--handover-color);height:2px;position:relative">
+          <div class="timeline-v-dot" style="background:white;border-color:var(--handover-color)"></div>
+        </div>
+        <div class="timeline-v-label">
+          <div class="timeline-v-name" style="color:var(--handover-color);font-size:11px">Changeover</div>
+        </div>
+      </div>`;
+      return;
+    }
+
+    const heightPx = Math.max(36, (durationMins / flightMins) * 500);
 
     html += `<div class="timeline-v-block ${blockClass}" style="height:${heightPx}px">`;
-
-    // Time label at top of each block
     html += `<div class="timeline-v-time top">${formatTime(block.start)}</div>`;
-
-    // Coloured bar
     html += `<div class="timeline-v-bar" style="background:${color};height:100%">`;
     html += `<div class="timeline-v-dot" style="background:white;border-color:${color}"></div>`;
     html += `</div>`;
 
-    // Label
     if (!isHandover && !isBuffer) {
       html += `<div class="timeline-v-label">
         <div class="timeline-v-name" style="color:${color}">${block.label}</div>
@@ -649,12 +716,12 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     html += `</div>`;
   });
 
-  // Final time label at bottom
-  html += `<div class="timeline-v-block" style="height:20px">`;
-  html += `<div class="timeline-v-time top">${formatTime(landing)}</div>`;
-  html += `<div class="timeline-v-bar" style="background:transparent;height:100%"></div>`;
-  html += `<div class="timeline-v-label"><div class="timeline-v-name" style="color:var(--text3);font-size:11px">Landing</div></div>`;
-  html += `</div>`;
+  // Final time label
+  html += `<div class="timeline-v-block" style="height:20px">
+    <div class="timeline-v-time top">${formatTime(landing)}</div>
+    <div class="timeline-v-bar" style="background:transparent;height:100%"></div>
+    <div class="timeline-v-label"><div class="timeline-v-name" style="color:var(--text3);font-size:11px">Landing</div></div>
+  </div>`;
 
   container.innerHTML = html;
 }
@@ -690,7 +757,17 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     const durationMins = block.end - block.start;
     const isHandover = block.type === 'handover';
     const isBuffer = block.type === 'buffer';
+    const isChangeover = block.type === 'changeover';
     const midPercent = ((block.start + (block.end - block.start) / 2 - takeoff) / flightMins * 100).toFixed(2) + '%';
+
+    // Changeover: just a tick mark, no bar
+    if (isChangeover) {
+      ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
+        <div class="timeline-h-tick-line" style="background:var(--handover-color)"></div>
+        <div class="timeline-h-tick-time" style="color:var(--handover-color)">${formatTime(block.start)}<br><span style="font-size:9px;font-weight:400">Changeover</span></div>
+      </div>`;
+      return;
+    }
 
     // Bar block
     trackHtml += `<div class="timeline-h-block" style="left:${left};width:${width};background:${color};opacity:${isBuffer||isHandover?0.4:1}"></div>`;
