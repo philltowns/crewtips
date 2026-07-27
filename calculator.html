@@ -193,17 +193,17 @@
     <div class="field-row">
       <div class="field">
         <label class="field-label">Takeoff time</label>
-        <input type="text" id="takeoffTime" placeholder="e.g. 0900" maxlength="4" oninput="onTakeoffChange()"/>
+        <input type="text" id="takeoffTime" placeholder="e.g. 09:00" maxlength="5" oninput="onTakeoffChange()" onblur="formatTimeInput('takeoffTime');onTakeoffChange()"/>
       </div>
       <div class="field">
         <label class="field-label">Flight duration</label>
-        <input type="text" id="flightDuration" placeholder="e.g. 10:00" oninput="onDurationChange()"/>
+        <input type="text" id="flightDuration" placeholder="e.g. 9:51" oninput="onDurationChange()" onblur="formatDurationInput();onDurationChange()"/>
         <div class="field-hint">Hours:minutes</div>
       </div>
     </div>
     <div class="field">
       <label class="field-label">Estimated landing time (UTC)</label>
-      <input type="text" id="landingTime" placeholder="e.g. 1900" maxlength="4" oninput="onLandingChange()"/>
+      <input type="text" id="landingTime" placeholder="e.g. 19:00" maxlength="5" oninput="onLandingChange()" onblur="formatTimeInput('landingTime');onLandingChange()"/>
       <div class="field-hint">Auto-calculated from takeoff + duration, or enter directly</div>
     </div>
   </div>
@@ -295,11 +295,13 @@ function setPilotCount(n) {
 // TIME HELPERS
 // ─────────────────────────────────────────────
 function parseTime(str) {
-  // Accepts "0900", "09:00", "9:00", "900"
+  // Accepts "0900", "09:00", "9:00", "900", "951"
   if (!str) return null;
-  str = str.replace(':', '').trim();
-  if (str.length < 3 || str.length > 4) return null;
-  if (str.length === 3) str = '0' + str;
+  str = str.replace(':', '').replace(' ','').trim();
+  if (str.length < 1 || str.length > 4) return null;
+  if (str.length === 1) str = '0' + str + '00'; // "9" → "0900"
+  if (str.length === 2) str = str + '00';         // "09" → "0900"
+  if (str.length === 3) str = '0' + str;          // "951" → "0951"
   const h = parseInt(str.substring(0,2));
   const m = parseInt(str.substring(2,4));
   if (isNaN(h) || isNaN(m) || h > 23 || m > 59) return null;
@@ -308,20 +310,26 @@ function parseTime(str) {
 
 function parseDuration(str) {
   if (!str) return null;
+  str = str.trim();
   if (str.includes(':')) {
     const parts = str.split(':');
     const h = parseInt(parts[0]);
-    const m = parseInt(parts[1]);
-    if (isNaN(h) || isNaN(m)) return null;
+    const m = parseInt(parts[1] || '0');
+    if (isNaN(h) || isNaN(m) || m > 59) return null;
     return h * 60 + m;
   }
-  const h = parseFloat(str);
-  if (isNaN(h)) return null;
-  return Math.round(h * 60);
+  // No colon — treat as hhmm style e.g. "951" = 9h 51m, "1030" = 10h 30m
+  str = str.replace(/[^0-9]/g, '');
+  if (str.length === 0) return null;
+  if (str.length <= 2) return parseInt(str) * 60; // "9" or "10" = hours only
+  if (str.length === 3) str = '0' + str;           // "951" → "0951"
+  const h = parseInt(str.substring(0, str.length - 2));
+  const m = parseInt(str.substring(str.length - 2));
+  if (isNaN(h) || isNaN(m) || m > 59) return null;
+  return h * 60 + m;
 }
 
 function minsToTime(mins) {
-  // Handle times crossing midnight
   mins = ((mins % 1440) + 1440) % 1440;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -338,6 +346,24 @@ function formatTime(mins) {
   return minsToTime(mins).substring(0,2) + ':' + minsToTime(mins).substring(2,4);
 }
 
+// Auto-format a time input (takeoff/landing) to HH:MM on blur
+function formatTimeInput(id) {
+  const el = document.getElementById(id);
+  const t = parseTime(el.value);
+  if (t !== null) el.value = formatTime(t);
+}
+
+// Auto-format duration input to H:MM on blur
+function formatDurationInput() {
+  const el = document.getElementById('flightDuration');
+  const d = parseDuration(el.value);
+  if (d !== null) {
+    const h = Math.floor(d / 60);
+    const m = d % 60;
+    el.value = h + ':' + String(m).padStart(2,'0');
+  }
+}
+
 // ─────────────────────────────────────────────
 // LINKED INPUTS
 // ─────────────────────────────────────────────
@@ -345,7 +371,7 @@ function onTakeoffChange() {
   const t = parseTime(document.getElementById('takeoffTime').value);
   const d = parseDuration(document.getElementById('flightDuration').value);
   if (t !== null && d !== null) {
-    document.getElementById('landingTime').value = minsToTime(t + d);
+    document.getElementById('landingTime').value = formatTime(t + d);
   }
   saveInputs();
 }
@@ -354,7 +380,7 @@ function onDurationChange() {
   const t = parseTime(document.getElementById('takeoffTime').value);
   const d = parseDuration(document.getElementById('flightDuration').value);
   if (t !== null && d !== null) {
-    document.getElementById('landingTime').value = minsToTime(t + d);
+    document.getElementById('landingTime').value = formatTime(t + d);
   }
   saveInputs();
 }
@@ -364,7 +390,7 @@ function onLandingChange() {
   const l = parseTime(document.getElementById('landingTime').value);
   if (t !== null && l !== null) {
     let d = l - t;
-    if (d < 0) d += 1440; // crosses midnight
+    if (d < 0) d += 1440;
     const h = Math.floor(d / 60);
     const m = d % 60;
     document.getElementById('flightDuration').value = h + ':' + String(m).padStart(2,'0');
