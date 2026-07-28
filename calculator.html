@@ -83,17 +83,16 @@
     .results.visible { display: block; }
 
     /* ── VERTICAL TIMELINE ── */
-    .timeline-v { position: relative; padding: 0 0 0 70px; margin: 8px 0 16px; }
-    .timeline-v-track { position: absolute; left: 56px; top: 0; bottom: 0; width: 4px; background: var(--border); border-radius: 2px; }
+    .timeline-v { position: relative; padding: 0 0 0 80px; margin: 8px 0 16px; }
+    .timeline-v-track { display: none; }
     .timeline-v-block { position: relative; display: flex; align-items: stretch; min-height: 0; }
-    .timeline-v-time { position: absolute; left: -70px; width: 60px; text-align: right; font-size: 11px; font-weight: 600; color: var(--text2); font-family: 'SF Mono', monospace; line-height: 1; }
+    .timeline-v-time { position: absolute; left: -76px; width: 68px; text-align: right; font-size: 11px; font-weight: 600; color: var(--text2); font-family: 'SF Mono', monospace; line-height: 1; }
     .timeline-v-time.top { top: 0; transform: translateY(-50%); }
-    .timeline-v-bar { width: 4px; flex-shrink: 0; margin-left: 56px; position: relative; }
+    .timeline-v-bar { width: 4px; flex-shrink: 0; position: relative; }
     .timeline-v-label { padding: 4px 0 4px 14px; display: flex; flex-direction: column; justify-content: center; min-height: 40px; flex: 1; }
     .timeline-v-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
     .timeline-v-dur { font-size: 11px; color: var(--text2); margin-top: 2px; }
-    .timeline-v-dot { position: absolute; left: -4px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 2px solid var(--border); transform: translateX(-4px); z-index: 1; }
-    .timeline-v-dot.colored { border-color: currentColor; }
+    .timeline-v-dot { position: absolute; left: -8px; top: 0; width: 20px; height: 2px; background: currentColor; transform: translateY(0); z-index: 1; }
 
     /* Block types */
     .block-pf .timeline-v-bar { background: var(--pf-color); }
@@ -525,8 +524,8 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const restEachRaw = (restWindow - totalHandoverMins) / 3;
   const restEach = roundTo5(Math.floor(restEachRaw));
 
-  // Anchor: PF returns pfReturnMins before landing
-  const pfReturns = landing - pfReturnMins;
+  // Anchor: PF returns pfReturnMins before landing — round to nearest 5
+  const pfReturns = roundTo5(landing - pfReturnMins);
   const pfRestEnd = pfReturns;
   const pfRestStart = pfRestEnd - restEach;
 
@@ -557,7 +556,7 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const useHandover = handoverMins > 0;
   const blocks = [
     { type: 'buffer', label: 'All crew on deck', start: takeoff, end: takeoff + buffer, pilot: null },
-    { type: 'relief', label: nameR1 + ' (rest)', start: r1Block1Start, end: r1Block1End, pilot: 'relief', name: nameR1 },
+    { type: 'relief', label: nameR1, start: r1Block1Start, end: r1Block1End, pilot: 'relief', name: nameR1 },
   ];
 
   if (useHandover) {
@@ -566,7 +565,7 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
     blocks.push({ type: 'changeover', label: 'Changeover', start: h1Start, end: h1Start, pilot: null });
   }
 
-  blocks.push({ type: 'pm', label: namePM + ' (rest)', start: pmRestStart, end: pmRestEnd, pilot: 'pm', name: namePM });
+  blocks.push({ type: 'pm', label: namePM, start: pmRestStart, end: pmRestEnd, pilot: 'pm', name: namePM });
 
   if (useHandover) {
     blocks.push({ type: 'handover', label: 'Handover', start: h2Start, end: h2End, pilot: null });
@@ -574,7 +573,7 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
     blocks.push({ type: 'changeover', label: 'Changeover', start: h2Start, end: h2Start, pilot: null });
   }
 
-  blocks.push({ type: 'pf', label: namePF + ' (rest)', start: pfRestStart, end: pfRestEnd, pilot: 'pf', name: namePF });
+  blocks.push({ type: 'pf', label: namePF, start: pfRestStart, end: pfRestEnd, pilot: 'pf', name: namePF });
 
   if (useHandover) {
     blocks.push({ type: 'handover', label: 'Handover', start: h3Start, end: h3End, pilot: null });
@@ -583,7 +582,7 @@ function calculate3Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   }
 
   blocks.push(
-    { type: 'relief2', label: nameR1 + ' (rest)', start: r1Block2Start, end: r1Block2End, pilot: 'relief', name: nameR1 },
+    { type: 'relief2', label: nameR1, start: r1Block2Start, end: r1Block2End, pilot: 'relief', name: nameR1 },
     { type: 'buffer', label: 'All crew on deck', start: r1Block2End, end: landing, pilot: null }
   );
 
@@ -603,8 +602,8 @@ function calculate4Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   const restEachRaw = (restWindow - totalHandoverMins) / 2;
   const restEach = roundTo5(Math.floor(restEachRaw));
 
-  // Anchor: PF/PM return pfReturnMins before landing
-  const pfpmReturns = landing - pfReturnMins;
+  // Anchor: PF/PM return pfReturnMins before landing — round to nearest 5
+  const pfpmReturns = roundTo5(landing - pfReturnMins);
   const pfpmRestEnd = pfpmReturns;
   const pfpmRestStart = pfpmRestEnd - restEach;
 
@@ -630,7 +629,7 @@ function calculate4Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
 
   const blocks = [
     { type: 'buffer', label: 'All crew on deck', start: takeoff, end: takeoff + buffer, pilot: null },
-    { type: 'relief', label: rName + ' (rest)', start: reliefBlock1Start, end: reliefBlock1End, pilot: 'relief', name: rName },
+    { type: 'relief', label: rName, start: reliefBlock1Start, end: reliefBlock1End, pilot: 'relief', name: rName },
   ];
 
   if (useHandover) {
@@ -639,7 +638,7 @@ function calculate4Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
     blocks.push({ type: 'changeover', label: 'Changeover', start: h1Start, end: h1Start, pilot: null });
   }
 
-  blocks.push({ type: 'pf', label: pfName + ' (rest)', start: pfpmRestStart, end: pfpmRestEnd, pilot: 'pf', name: pfName });
+  blocks.push({ type: 'pf', label: pfName, start: pfpmRestStart, end: pfpmRestEnd, pilot: 'pf', name: pfName });
 
   if (useHandover) {
     blocks.push({ type: 'handover', label: 'Handover', start: h2Start, end: h2End, pilot: null });
@@ -648,7 +647,7 @@ function calculate4Pilot(takeoff, landing, flightMins, pfReturnMins, handoverMin
   }
 
   blocks.push(
-    { type: 'relief2', label: rName + ' (rest)', start: reliefBlock2Start, end: reliefBlock2End, pilot: 'relief', name: rName },
+    { type: 'relief2', label: rName, start: reliefBlock2Start, end: reliefBlock2End, pilot: 'relief', name: rName },
     { type: 'buffer', label: 'All crew on deck', start: reliefBlock2End, end: landing, pilot: null }
   );
 
@@ -666,7 +665,7 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     buffer: 'var(--border)', deck: 'var(--border)'
   };
 
-  let html = '<div class="timeline-v-track"></div>';
+  let html = '';
 
   blocks.forEach((block, i) => {
     const durationMins = block.end - block.start;
@@ -675,17 +674,17 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     const isChangeover = block.type === 'changeover';
     const color = colorMap[block.pilot || block.type] || 'var(--border)';
     const blockClass = 'block-' + (block.type === 'relief2' ? 'relief' : block.type);
+    const prevBlock = i > 0 ? blocks[i - 1] : null;
+    const prevIsChangeover = prevBlock && prevBlock.type === 'changeover';
 
-    // Changeover: render as a single tick mark, no height block
+    // Changeover: single tick mark and time only, no label
     if (isChangeover) {
-      html += `<div class="timeline-v-block" style="height:24px;align-items:center">
+      html += `<div class="timeline-v-block" style="height:20px;align-items:center">
         <div class="timeline-v-time top" style="top:50%;transform:translateY(-50%)">${formatTime(block.start)}</div>
         <div class="timeline-v-bar" style="background:var(--handover-color);height:2px;position:relative">
-          <div class="timeline-v-dot" style="background:white;border-color:var(--handover-color)"></div>
+          <div class="timeline-v-dot" style="background:var(--handover-color)"></div>
         </div>
-        <div class="timeline-v-label">
-          <div class="timeline-v-name" style="color:var(--handover-color);font-size:11px">Changeover</div>
-        </div>
+        <div class="timeline-v-label"></div>
       </div>`;
       return;
     }
@@ -693,10 +692,16 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     const heightPx = Math.max(36, (durationMins / flightMins) * 500);
 
     html += `<div class="timeline-v-block ${blockClass}" style="height:${heightPx}px">`;
-    html += `<div class="timeline-v-time top">${formatTime(block.start)}</div>`;
-    html += `<div class="timeline-v-bar" style="background:${color};height:100%">`;
-    html += `<div class="timeline-v-dot" style="background:white;border-color:${color}"></div>`;
-    html += `</div>`;
+
+    // Suppress time label if previous block was a changeover
+    if (!prevIsChangeover) {
+      html += `<div class="timeline-v-time top">${formatTime(block.start)}</div>`;
+      html += `<div class="timeline-v-bar" style="background:${color};height:100%">
+        <div class="timeline-v-dot" style="background:${color}"></div>
+      </div>`;
+    } else {
+      html += `<div class="timeline-v-bar" style="background:${color};height:100%"></div>`;
+    }
 
     if (!isHandover && !isBuffer) {
       html += `<div class="timeline-v-label">
@@ -719,7 +724,9 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
   // Final time label
   html += `<div class="timeline-v-block" style="height:20px">
     <div class="timeline-v-time top">${formatTime(landing)}</div>
-    <div class="timeline-v-bar" style="background:transparent;height:100%"></div>
+    <div class="timeline-v-bar" style="background:var(--border);height:2px;position:relative">
+      <div class="timeline-v-dot" style="background:var(--border)"></div>
+    </div>
     <div class="timeline-v-label"><div class="timeline-v-name" style="color:var(--text3);font-size:11px">Landing</div></div>
   </div>`;
 
