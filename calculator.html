@@ -337,9 +337,18 @@ function minsToTime(mins) {
 }
 
 function minsToDisplay(mins) {
-  const h = Math.floor(Math.abs(mins) / 60);
-  const m = Math.abs(mins) % 60;
+  // Handle midnight crossing — if negative, add 1440
+  if (mins < 0) mins += 1440;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
   return h + 'h ' + String(m).padStart(2,'0') + 'm';
+}
+
+function blockDuration(start, end) {
+  // Always returns positive duration, handling midnight crossing
+  let d = end - start;
+  if (d < 0) d += 1440;
+  return d;
 }
 
 function formatTime(mins) {
@@ -668,7 +677,7 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
   let html = '';
 
   blocks.forEach((block, i) => {
-    const durationMins = block.end - block.start;
+    const durationMins = blockDuration(block.start, block.end);
     const isHandover = block.type === 'handover';
     const isBuffer = block.type === 'buffer';
     const isChangeover = block.type === 'changeover';
@@ -744,8 +753,20 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     buffer: '#ddd'
   };
 
-  const toPercent = (t) => ((t - takeoff) / flightMins * 100).toFixed(2) + '%';
-  const toWidth = (start, end) => ((end - start) / flightMins * 100).toFixed(2) + '%';
+  const toPercent = (t) => {
+    let offset = t - takeoff;
+    if (offset < 0) offset += 1440;
+    return (offset / flightMins * 100).toFixed(2) + '%';
+  };
+  const toWidth = (start, end) => {
+    const dur = blockDuration(start, end);
+    return (dur / flightMins * 100).toFixed(2) + '%';
+  };
+  const toMidPercent = (start, end) => {
+    let s = start - takeoff; if (s < 0) s += 1440;
+    const dur = blockDuration(start, end);
+    return ((s + dur / 2) / flightMins * 100).toFixed(2) + '%';
+  };
 
   let trackHtml = '';
   let labelsHtml = '';
@@ -761,34 +782,41 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     const color = colorMap[block.pilot || block.type] || '#ddd';
     const left = toPercent(block.start);
     const width = toWidth(block.start, block.end);
-    const durationMins = block.end - block.start;
+    const durationMins = blockDuration(block.start, block.end);
     const isHandover = block.type === 'handover';
     const isBuffer = block.type === 'buffer';
     const isChangeover = block.type === 'changeover';
-    const midPercent = ((block.start + (block.end - block.start) / 2 - takeoff) / flightMins * 100).toFixed(2) + '%';
+    const midPercent = toMidPercent(block.start, block.end);
 
-    // Changeover: just a tick mark, no bar
+    // Changeover: tick mark only, no label text
     if (isChangeover) {
       ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
         <div class="timeline-h-tick-line" style="background:var(--handover-color)"></div>
-        <div class="timeline-h-tick-time" style="color:var(--handover-color)">${formatTime(block.start)}<br><span style="font-size:9px;font-weight:400">Changeover</span></div>
+        <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
       </div>`;
       return;
     }
 
     // Bar block
-    trackHtml += `<div class="timeline-h-block" style="left:${left};width:${width};background:${color};opacity:${isBuffer||isHandover?0.4:1}"></div>`;
+    trackHtml += `<div class="timeline-h-block" style="left:${left};width:${width};background:${color};opacity:${isBuffer||isHandover?0.35:1}"></div>`;
 
-    // Label above
-    if (!isHandover && !isBuffer) {
-      labelsHtml += `<div class="timeline-h-label" style="left:${midPercent}">
-        <div class="timeline-h-name" style="color:${color}">${block.name || block.label}</div>
-        <div class="timeline-h-dur">${minsToDisplay(durationMins)}</div>
-      </div>`;
+    // Label above — pilot name + duration for rest blocks, small grey label for handover
+    if (!isBuffer) {
+      if (isHandover) {
+        labelsHtml += `<div class="timeline-h-label" style="left:${midPercent}">
+          <div class="timeline-h-name" style="color:var(--handover-color);font-size:10px;font-weight:500">Handover</div>
+          <div class="timeline-h-dur" style="font-size:9px">${durationMins}m</div>
+        </div>`;
+      } else {
+        labelsHtml += `<div class="timeline-h-label" style="left:${midPercent}">
+          <div class="timeline-h-name" style="color:${color}">${block.name || block.label}</div>
+          <div class="timeline-h-dur">${minsToDisplay(durationMins)}</div>
+        </div>`;
+      }
     }
 
-    // Tick at start of each block (except first)
-    if (block.start !== takeoff) {
+    // Tick at start of each non-buffer block (except takeoff)
+    if (block.start !== takeoff && !isBuffer) {
       ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
         <div class="timeline-h-tick-line"></div>
         <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
@@ -831,11 +859,11 @@ function renderSummary(blocks, namePF, namePM, nameR1, nameR2) {
 
   pilots.forEach(pilot => {
     const restBlocks = blocks.filter(b => b.pilot === pilot.key);
-    const totalMins = restBlocks.reduce((sum, b) => sum + (b.end - b.start), 0);
+    const totalMins = restBlocks.reduce((sum, b) => sum + blockDuration(b.start, b.end), 0);
 
     let periods = restBlocks.map((b, i) => {
       const label = restBlocks.length > 1 ? `Block ${i+1}: ` : '';
-      return `${label}${formatTime(b.start)} – ${formatTime(b.end)} (${minsToDisplay(b.end - b.start)})`;
+      return `${label}${formatTime(b.start)} – ${formatTime(b.end)} (${minsToDisplay(blockDuration(b.start, b.end))})`;
     }).join('<br>');
 
     html += `<div class="summary-row">

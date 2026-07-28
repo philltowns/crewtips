@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crewtips-v4';
+const CACHE_NAME = 'crewtips-v5';
 
 const STATIC_ASSETS = [
   './',
@@ -21,7 +21,6 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => {
-      // Force all open tabs/PWA instances to reload with new version
       return self.clients.matchAll({ type: 'window' }).then(clients => {
         clients.forEach(client => client.navigate(client.url));
       });
@@ -31,12 +30,13 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch strategy:
+// - HTML files: network first, fall back to cache (ensures app always checks for updates)
 // - Dropbox URLs: always network, never cache
 // - Everything else: cache first, fall back to network
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Never cache Dropbox API calls — always hit network
+  // Never cache Dropbox API calls
   if (url.hostname.includes('dropbox')) {
     event.respondWith(
       fetch(event.request).catch(() => {
@@ -48,6 +48,23 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // HTML files — network first so updates are always picked up
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Everything else — cache first
   event.respondWith(
     caches.match(event.request).then(cached => {
       return cached || fetch(event.request).then(response => {
