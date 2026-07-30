@@ -84,11 +84,11 @@
 
     /* ── VERTICAL TIMELINE ── */
     .timeline-v { position: relative; padding: 0 0 0 80px; margin: 8px 0 16px; }
-    .timeline-v-track { display: none; }
+    .timeline-v-track { position: absolute; left: 80px; top: 0; bottom: 0; width: 4px; background: var(--border); border-radius: 2px; }
     .timeline-v-block { position: relative; display: flex; align-items: stretch; min-height: 0; }
     .timeline-v-time { position: absolute; left: -76px; width: 68px; text-align: right; font-size: 11px; font-weight: 600; color: var(--text2); font-family: 'SF Mono', monospace; line-height: 1; }
     .timeline-v-time.top { top: 0; transform: translateY(-50%); }
-    .timeline-v-bar { width: 4px; flex-shrink: 0; position: relative; }
+    .timeline-v-bar { width: 4px; flex-shrink: 0; position: relative; z-index: 1; }
     .timeline-v-label { padding: 4px 0 4px 14px; display: flex; flex-direction: column; justify-content: center; min-height: 40px; flex: 1; }
     .timeline-v-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
     .timeline-v-dur { font-size: 11px; color: var(--text2); margin-top: 2px; }
@@ -674,7 +674,7 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     buffer: 'var(--border)', deck: 'var(--border)'
   };
 
-  let html = '';
+  let html = '<div class="timeline-v-track"></div>';
 
   blocks.forEach((block, i) => {
     const durationMins = blockDuration(block.start, block.end);
@@ -778,7 +778,7 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     <div class="timeline-h-tick-time">${formatTime(takeoff)}</div>
   </div>`;
 
-  blocks.forEach(block => {
+  blocks.forEach((block, i) => {
     const color = colorMap[block.pilot || block.type] || '#ddd';
     const left = toPercent(block.start);
     const width = toWidth(block.start, block.end);
@@ -787,6 +787,8 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     const isBuffer = block.type === 'buffer';
     const isChangeover = block.type === 'changeover';
     const midPercent = toMidPercent(block.start, block.end);
+    const prevBlock = i > 0 ? blocks[i - 1] : null;
+    const prevIsHandover = prevBlock && prevBlock.type === 'handover';
 
     // Changeover: tick mark only, no label text
     if (isChangeover) {
@@ -800,27 +802,39 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     // Bar block
     trackHtml += `<div class="timeline-h-block" style="left:${left};width:${width};background:${color};opacity:${isBuffer||isHandover?0.35:1}"></div>`;
 
-    // Label above — pilot name + duration for rest blocks, small grey label for handover
+    // Label above
     if (!isBuffer) {
       if (isHandover) {
+        // Single combined tick at midpoint showing time span
+        ticksHtml += `<div class="timeline-h-tick" style="left:${midPercent}">
+          <div class="timeline-h-tick-line" style="background:var(--handover-color)"></div>
+          <div class="timeline-h-tick-time" style="color:var(--handover-color)">${formatTime(block.start)}–${formatTime(block.end)}</div>
+        </div>`;
+        // Label above handover bar
         labelsHtml += `<div class="timeline-h-label" style="left:${midPercent}">
-          <div class="timeline-h-name" style="color:var(--handover-color);font-size:10px;font-weight:500">Handover</div>
-          <div class="timeline-h-dur" style="font-size:9px">${durationMins}m</div>
+          <div class="timeline-h-name" style="color:var(--handover-color);font-size:10px;font-weight:500">Handover ${durationMins}m</div>
         </div>`;
       } else {
         labelsHtml += `<div class="timeline-h-label" style="left:${midPercent}">
           <div class="timeline-h-name" style="color:${color}">${block.name || block.label}</div>
           <div class="timeline-h-dur">${minsToDisplay(durationMins)}</div>
         </div>`;
+        // Tick at start of block — but skip if previous was a handover (time already shown there)
+        if (block.start !== takeoff && !prevIsHandover) {
+          ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
+            <div class="timeline-h-tick-line"></div>
+            <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
+          </div>`;
+        }
       }
-    }
-
-    // Tick at start of each non-buffer block (except takeoff)
-    if (block.start !== takeoff && !isBuffer) {
-      ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
-        <div class="timeline-h-tick-line"></div>
-        <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
-      </div>`;
+    } else {
+      // Buffer — add tick at start if not takeoff
+      if (block.start !== takeoff) {
+        ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
+          <div class="timeline-h-tick-line"></div>
+          <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
+        </div>`;
+      }
     }
   });
 
