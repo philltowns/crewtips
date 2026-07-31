@@ -84,8 +84,8 @@
 
     /* ── VERTICAL TIMELINE ── */
     .timeline-v { position: relative; padding: 0 0 0 80px; margin: 8px 0 16px; }
-    .timeline-v-track { position: absolute; left: 80px; top: 0; bottom: 0; width: 4px; background: var(--border); border-radius: 2px; }
-    .timeline-v-block { position: relative; display: flex; align-items: stretch; min-height: 0; }
+    .timeline-v-track { position: absolute; left: 80px; top: 0; bottom: 0; width: 4px; background: var(--border); border-radius: 2px; z-index: 0; pointer-events: none; }
+    .timeline-v-block { position: relative; display: flex; align-items: stretch; min-height: 0; padding-left: 0; }
     .timeline-v-time { position: absolute; left: -76px; width: 68px; text-align: right; font-size: 11px; font-weight: 600; color: var(--text2); font-family: 'SF Mono', monospace; line-height: 1; }
     .timeline-v-time.top { top: 0; transform: translateY(-50%); }
     .timeline-v-bar { width: 4px; flex-shrink: 0; position: relative; z-index: 1; }
@@ -772,6 +772,9 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
   let labelsHtml = '';
   let ticksHtml = '';
 
+  // Helper: is this time too close to another (within 5% of flight time)?
+  const tooClose = (t1, t2) => Math.abs(blockDuration(Math.min(t1,t2), Math.max(t1,t2))) / flightMins < 0.06;
+
   // Takeoff tick
   ticksHtml += `<div class="timeline-h-tick" style="left:0%">
     <div class="timeline-h-tick-line"></div>
@@ -819,8 +822,8 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
           <div class="timeline-h-name" style="color:${color}">${block.name || block.label}</div>
           <div class="timeline-h-dur">${minsToDisplay(durationMins)}</div>
         </div>`;
-        // Tick at start of block — but skip if previous was a handover (time already shown there)
-        if (block.start !== takeoff && !prevIsHandover) {
+        // Tick at start of block — but skip if previous was a handover or too close to takeoff/landing
+        if (block.start !== takeoff && !prevIsHandover && !tooClose(block.start, takeoff) && !tooClose(block.start, landing)) {
           ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
             <div class="timeline-h-tick-line"></div>
             <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
@@ -828,8 +831,8 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
         }
       }
     } else {
-      // Buffer — add tick at start if not takeoff
-      if (block.start !== takeoff) {
+      // Buffer — add tick at start if not takeoff and not too close to takeoff
+      if (block.start !== takeoff && !tooClose(block.start, takeoff) && !tooClose(block.start, landing)) {
         ticksHtml += `<div class="timeline-h-tick" style="left:${left}">
           <div class="timeline-h-tick-line"></div>
           <div class="timeline-h-tick-time">${formatTime(block.start)}</div>
@@ -838,11 +841,14 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     }
   });
 
-  // Landing tick
-  ticksHtml += `<div class="timeline-h-tick" style="left:100%">
-    <div class="timeline-h-tick-line"></div>
-    <div class="timeline-h-tick-time">${formatTime(landing)}</div>
-  </div>`;
+  // Landing tick — suppress if too close to last non-buffer block end
+  const lastBlock = blocks[blocks.length - 1];
+  if (!tooClose(landing, lastBlock ? lastBlock.start : takeoff)) {
+    ticksHtml += `<div class="timeline-h-tick" style="left:100%">
+      <div class="timeline-h-tick-line"></div>
+      <div class="timeline-h-tick-time">${formatTime(landing)}</div>
+    </div>`;
+  }
 
   container.innerHTML = `
     <div style="position:relative;min-width:600px">
