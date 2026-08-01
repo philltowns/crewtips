@@ -112,22 +112,22 @@
     .buffer-marker { height: 2px; background: repeating-linear-gradient(90deg, var(--text3) 0, var(--text3) 4px, transparent 4px, transparent 8px); margin: 2px 0; }
 
     /* ── HORIZONTAL TIMELINE (landscape) ── */
-    .timeline-h { display: none; position: relative; margin: 16px 0; padding: 40px 0 68px; overflow-x: auto; }
+    .timeline-h { display: none; position: relative; margin: 16px 0; padding: 40px 0 84px; overflow-x: auto; }
     .timeline-h-track { height: 8px; background: var(--border); border-radius: 4px; position: relative; min-width: 600px; }
     .timeline-h-block { position: absolute; top: 0; height: 8px; border-radius: 2px; }
     .timeline-h-label { position: absolute; top: -32px; transform: translateX(-50%); text-align: center; white-space: nowrap; }
     .timeline-h-name { font-size: 12px; font-weight: 600; }
     .timeline-h-dur { font-size: 11px; color: var(--text2); }
     .timeline-h-tick { position: absolute; bottom: -24px; transform: translateX(-50%); }
-    .timeline-h-tick-line { width: 1px; height: 12px; background: var(--text3); margin: 0 auto; }
-    .timeline-h-tick-time { font-size: 10px; font-weight: 600; color: var(--text2); font-family: 'SF Mono', monospace; white-space: nowrap; margin-top: 2px; text-align: center; }
+    .timeline-h-tick-line { width: 1px; height: 16px; background: var(--text3); margin: 0 auto; }
+    .timeline-h-tick-time { font-size: 10px; font-weight: 600; color: var(--text2); font-family: 'SF Mono', monospace; white-space: nowrap; margin-top: 6px; text-align: center; }
     .timeline-h-tick-edge-start { transform: translateX(0); }
     .timeline-h-tick-edge-start .timeline-h-tick-line { margin: 0; }
     .timeline-h-tick-edge-start .timeline-h-tick-time { text-align: left; }
     .timeline-h-tick-edge-end { transform: translateX(-100%); }
     .timeline-h-tick-edge-end .timeline-h-tick-line { margin: 0 0 0 auto; }
     .timeline-h-tick-edge-end .timeline-h-tick-time { text-align: right; }
-    .timeline-h-tick-handover-label { font-size: 10px; font-weight: 500; margin-top: 2px; text-align: center; white-space: nowrap; }
+    .timeline-h-tick-handover-label { font-size: 10px; font-weight: 500; margin-top: 6px; text-align: center; white-space: nowrap; }
     .timeline-h-arrow { position: absolute; top: -18px; height: 2px; }
     .timeline-h-arrow::before, .timeline-h-arrow::after { content: ''; position: absolute; top: -4px; border: 4px solid transparent; }
     .timeline-h-arrow::before { left: 0; border-right-color: currentColor; }
