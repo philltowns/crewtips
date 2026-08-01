@@ -199,17 +199,17 @@
     <div class="field-row">
       <div class="field">
         <label class="field-label">Takeoff time</label>
-        <input type="text" id="takeoffTime" placeholder="e.g. 09:00" maxlength="5" oninput="onTakeoffChange()" onblur="formatTimeInput('takeoffTime');onTakeoffChange()"/>
+        <input type="text" id="takeoffTime" placeholder="e.g. 09:00" maxlength="5" inputmode="numeric" pattern="[0-9]*" oninput="liveFormatTimeInput('takeoffTime');onTakeoffChange()" onblur="formatTimeInput('takeoffTime');onTakeoffChange()"/>
       </div>
       <div class="field">
         <label class="field-label">Flight duration</label>
-        <input type="text" id="flightDuration" placeholder="e.g. 9:51" oninput="onDurationChange()" onblur="formatDurationInput();onDurationChange()"/>
+        <input type="text" id="flightDuration" placeholder="e.g. 9:51" inputmode="numeric" pattern="[0-9]*" oninput="liveFormatDurationInput();onDurationChange()" onblur="formatDurationInput();onDurationChange()"/>
         <div class="field-hint">Hours:minutes</div>
       </div>
     </div>
     <div class="field">
       <label class="field-label">Estimated landing time (UTC)</label>
-      <input type="text" id="landingTime" placeholder="e.g. 19:00" maxlength="5" oninput="onLandingChange()" onblur="formatTimeInput('landingTime');onLandingChange()"/>
+      <input type="text" id="landingTime" placeholder="e.g. 19:00" maxlength="5" inputmode="numeric" pattern="[0-9]*" oninput="liveFormatTimeInput('landingTime');onLandingChange()" onblur="formatTimeInput('landingTime');onLandingChange()"/>
       <div class="field-hint">Auto-calculated from takeoff + duration, or enter directly</div>
     </div>
   </div>
@@ -219,7 +219,7 @@
     <div class="card-title">Rest options</div>
     <div class="field">
       <label class="field-label">PF returns before landing</label>
-      <input type="text" id="pfReturn" placeholder="e.g. 90" oninput="saveInputs()"/>
+      <input type="text" id="pfReturn" placeholder="e.g. 90" inputmode="numeric" pattern="[0-9]*" oninput="saveInputs()"/>
       <div class="field-hint">Minutes before landing</div>
     </div>
     <div class="field" style="margin-top:4px">
@@ -234,7 +234,7 @@
     </div>
     <div class="field handover-duration" id="handoverDurationField">
       <label class="field-label" style="margin-top:10px">Handover duration</label>
-      <input type="text" id="handoverDuration" placeholder="e.g. 10" oninput="saveInputs()"/>
+      <input type="text" id="handoverDuration" placeholder="e.g. 10" inputmode="numeric" pattern="[0-9]*" oninput="saveInputs()"/>
       <div class="field-hint">Minutes per handover</div>
     </div>
   </div>
@@ -360,6 +360,23 @@ function blockDuration(start, end) {
 
 function formatTime(mins) {
   return minsToTime(mins).substring(0,2) + ':' + minsToTime(mins).substring(2,4);
+}
+
+// Live-format a time input (takeoff/landing) as the user types digits —
+// auto-inserts the colon after 2 digits, so a numeric keypad (no colon
+// key) can still produce HH:MM
+function liveFormatTimeInput(id) {
+  const el = document.getElementById(id);
+  const digits = el.value.replace(/[^0-9]/g, '').slice(0, 4);
+  el.value = digits.length > 2 ? digits.slice(0, 2) + ':' + digits.slice(2) : digits;
+}
+
+// Live-format the duration input as the user types — the last 2 digits
+// typed are always minutes, matching parseDuration's own hh/mm split
+function liveFormatDurationInput() {
+  const el = document.getElementById('flightDuration');
+  const digits = el.value.replace(/[^0-9]/g, '').slice(0, 4);
+  el.value = digits.length > 2 ? digits.slice(0, digits.length - 2) + ':' + digits.slice(-2) : digits;
 }
 
 // Auto-format a time input (takeoff/landing) to HH:MM on blur
@@ -749,7 +766,7 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     <div class="timeline-v-bar" style="background:var(--border);height:2px;position:relative">
       <div class="timeline-v-dot" style="background:var(--border)"></div>
     </div>
-    <div class="timeline-v-label" style="position:absolute;left:14px;top:0;transform:translateY(-50%)"><div class="timeline-v-name" style="color:var(--text3);font-size:11px">Landing</div></div>
+    <div class="timeline-v-label"></div>
   </div>`;
 
   container.innerHTML = html;
