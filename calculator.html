@@ -692,11 +692,15 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
     const blockClass = 'block-' + (block.type === 'relief2' ? 'relief' : block.type);
     const prevBlock = i > 0 ? blocks[i - 1] : null;
     const prevIsChangeover = prevBlock && prevBlock.type === 'changeover';
+    // Suppress just the time TEXT (keep the tick) for: Relief's first rest
+    // period start (i===1), and the ending buffer's start, which is the
+    // same instant as Relief's second rest period finish (i===last)
+    const suppressTimeText = (i === 1) || (i === blocks.length - 1);
 
     // Changeover: single tick mark and time only, no label
     if (isChangeover) {
-      html += `<div class="timeline-v-block" style="height:20px;align-items:center">
-        <div class="timeline-v-time top" style="top:50%;transform:translateY(-50%)">${formatTime(block.start)}</div>
+      html += `<div class="timeline-v-block" style="height:2px">
+        <div class="timeline-v-time top">${formatTime(block.start)}</div>
         <div class="timeline-v-bar" style="background:var(--handover-color);height:2px;position:relative">
           <div class="timeline-v-dot" style="background:var(--handover-color)"></div>
         </div>
@@ -711,7 +715,9 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
 
     // Suppress time label if previous block was a changeover
     if (!prevIsChangeover) {
-      html += `<div class="timeline-v-time top">${formatTime(block.start)}</div>`;
+      if (!suppressTimeText) {
+        html += `<div class="timeline-v-time top">${formatTime(block.start)}</div>`;
+      }
       html += `<div class="timeline-v-bar" style="background:${color};height:100%">
         <div class="timeline-v-dot" style="background:${color}"></div>
       </div>`;
@@ -730,7 +736,7 @@ function renderVertical(blocks, takeoff, landing, flightMins) {
       </div>`;
     } else {
       html += `<div class="timeline-v-label">
-        <div class="timeline-v-name" style="color:var(--text3);font-size:11px">${block.label} (${minsToDisplay(durationMins)})</div>
+        <div class="timeline-v-name" style="color:var(--text3);font-size:11px">${block.label}</div>
       </div>`;
     }
 
@@ -847,9 +853,12 @@ function renderHorizontal(blocks, takeoff, landing, flightMins) {
     }
   });
 
-  // Landing tick — suppress if too close to last non-buffer block end
+  // Landing tick — only suppress on genuine near-overlap with the last tick,
+  // not the ending buffer's fixed 30-min duration (which was hiding it on
+  // almost every normal-length flight)
   const lastBlock = blocks[blocks.length - 1];
-  if (!tooClose(landing, lastBlock ? lastBlock.start : takeoff)) {
+  const landingTooClose = lastBlock && (blockDuration(Math.min(landing, lastBlock.start), Math.max(landing, lastBlock.start)) / flightMins < 0.02);
+  if (!landingTooClose) {
     ticksHtml += `<div class="timeline-h-tick timeline-h-tick-edge-end" style="left:100%">
       <div class="timeline-h-tick-line"></div>
       <div class="timeline-h-tick-time">${formatTime(landing)}</div>
