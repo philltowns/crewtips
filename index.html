@@ -33,8 +33,6 @@
     .brand-mark { width: 34px; height: 34px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.5px; border: 1px solid rgba(255,255,255,0.25); flex-shrink: 0; }
     .brand-name { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
     .brand-sub { font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 0.3px; margin-top: 1px; }
-    .admin-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 20px; cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 5px; flex-shrink: 0; transition: background 0.15s; }
-    .admin-btn:active { background: rgba(255,255,255,0.25); }
     .search-wrap { padding: 0 16px 14px; position: relative; }
     .search-inner { position: relative; }
     .search-inner input { width: 100%; padding: 10px 14px 10px 38px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-family: var(--font); background: rgba(255,255,255,0.18); color: #fff; outline: none; }
@@ -95,54 +93,6 @@
     .see-also-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
     .see-also-arrow { font-size: 20px; color: var(--red); font-weight: 300; flex-shrink: 0; }
     .inline-tip-link { display: inline; background: none; border: none; color: var(--red); font-size: inherit; font-family: var(--font); font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
-    .overlay { position: fixed; inset: 0; background: rgba(10,22,40,0.65); z-index: 200; display: flex; align-items: flex-end; padding-bottom: var(--safe-bottom); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .overlay.open { opacity: 1; pointer-events: all; }
-    .sheet { background: var(--white); border-radius: 20px 20px 0 0; width: 100%; max-width: 680px; margin: 0 auto; max-height: 90vh; display: flex; flex-direction: column; transform: translateY(40px); transition: transform 0.25s ease; }
-    .overlay.open .sheet { transform: translateY(0); }
-    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
-    .sheet-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sheet-title { font-size: 16px; font-weight: 700; color: var(--text); }
-    .sheet-close { background: var(--surface); border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: var(--font); line-height: 1; }
-    .sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 16px; }
-    .admin-tabs { display: flex; background: var(--surface); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; gap: 2px; flex-wrap: wrap; }
-    .admin-tab { flex: 1; padding: 7px 4px; background: none; border: none; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: var(--font); transition: background 0.15s, color 0.15s; white-space: nowrap; }
-    .admin-tab.active { background: var(--white); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .field { margin-bottom: 12px; }
-    .field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
-    .field input, .field select, .field textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font); color: var(--text); background: var(--white); outline: none; -webkit-appearance: none; }
-    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,16,46,0.1); }
-    .field textarea { resize: vertical; min-height: 100px; line-height: 1.55; }
-    .field-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
-    .btn-row { display: flex; gap: 8px; margin-top: 4px; }
-    .btn { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font); border: 1px solid var(--border); transition: background 0.15s, opacity 0.15s; }
-    .btn:active { opacity: 0.8; }
-    .btn-primary { background: var(--red); color: #fff; border-color: var(--red); flex: 1; }
-    .btn-primary:hover { background: var(--red-dark); }
-    .btn-ghost { background: none; color: var(--text2); }
-    .btn-danger { background: none; color: var(--red); border-color: rgba(200,16,46,0.3); }
-    .err { font-size: 13px; color: var(--red); margin-bottom: 10px; min-height: 18px; font-weight: 500; }
-    .item-list { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; }
-    .item-list-empty { padding: 16px; text-align: center; font-size: 13px; color: var(--text3); }
-    .item-row { display: flex; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); gap: 8px; }
-    .item-row:last-child { border-bottom: none; }
-    .item-row-text { flex: 1; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-edit { background: none; border: none; font-size: 15px; cursor: pointer; padding: 2px 4px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
-    .item-del { background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; padding: 2px 4px; border-radius: 4px; line-height: 1; font-family: var(--font); flex-shrink: 0; }
-    .item-del:active { color: var(--red); background: var(--red-light); }
-    .pw-section { background: var(--surface); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; }
-    .pw-section-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
-    .cat-filter-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
-    .cat-filter-btn { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: none; font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: var(--font); }
-    .cat-filter-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
-    .edit-form-header { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 12px; }
-    .toast { position: fixed; bottom: calc(var(--safe-bottom) + 20px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy); color: #fff; font-size: 13px; font-weight: 500; padding: 9px 18px; border-radius: 20px; z-index: 300; opacity: 0; transition: opacity 0.2s, transform 0.2s; white-space: nowrap; pointer-events: none; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .login-wrap { padding: 8px 0; }
-    .login-logo { width: 56px; height: 56px; background: var(--red); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; margin: 0 auto 16px; }
-    .login-wrap h3 { text-align: center; font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-    .login-wrap p { text-align: center; font-size: 13px; color: var(--text2); margin-bottom: 20px; }
-    .dropbox-connect { background: #0061FF; color: #fff; border: none; border-radius: var(--radius-sm); padding: 12px 20px; font-size: 14px; font-weight: 600; font-family: var(--font); cursor: pointer; width: 100%; margin-top: 8px; }
-    .dropbox-status { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #e8f5e9; border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: #2e7d32; font-weight: 500; }
     .pane { display: none; }
     .pane.active { display: block; }
     .tools-grid { display: flex; flex-direction: column; gap: 10px; }
@@ -168,7 +118,6 @@
           <div class="brand-sub">Pilot knowledge base</div>
         </div>
       </div>
-      <button class="admin-btn" onclick="openAdmin()">🔒 Admin</button>
     </div>
     <div class="search-wrap" id="searchWrap">
       <div class="search-inner">
@@ -203,122 +152,21 @@
   </div>
 </div>
 
-<div class="overlay" id="adminOverlay" onclick="overlayClick(event)">
-  <div class="sheet" role="dialog" aria-modal="true">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <span class="sheet-title" id="sheetTitle">Admin</span>
-      <button class="sheet-close" onclick="closeAdmin()">×</button>
-    </div>
-    <div class="sheet-body" id="sheetBody"></div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
-
 <script>
 // ─────────────────────────────────────────────
 // DROPBOX CONFIG
 // ─────────────────────────────────────────────
-const DBX_APP_KEY    = 'u1ijlp2gzvea5oa';
-const DBX_REDIRECT   = 'https://philltowns.github.io/crewtips/';
-const DBX_FILE_PATH  = '/data.json';
-const DBX_TOKEN_KEY  = 'crewtips_dbx_token';
-const DBX_CACHE_KEY  = 'crewtips_dbx_cache';
 const DBX_PUBLIC_URL = 'https://dl.dropboxusercontent.com/scl/fi/4tqydwmwra00t4g79l723/data.json?rlkey=qg78byqy305yw7f14b8hunzvn&st=f4zaftin';
 
 // ─────────────────────────────────────────────
 // APP STATE
 // ─────────────────────────────────────────────
 const STORAGE_KEY  = 'crewtips_data';
-const PASS_KEY     = 'crewtips_pass';
+const DBX_CACHE_KEY  = 'crewtips_dbx_cache';
 
 let appData      = null;
 let currentTab   = 'faqs';
 let searchTerm   = '';
-let adminAuthed  = false;
-let adminSection = 'faqs';
-let adminCatFilter = 'all';
-let editingFaqId = null;
-let editingTipId = null;
-
-// ─────────────────────────────────────────────
-// DROPBOX AUTH
-// ─────────────────────────────────────────────
-function getDbxToken() {
-  return localStorage.getItem(DBX_TOKEN_KEY);
-}
-
-function handleOAuthCallback() {
-  const hash = window.location.hash;
-  if (!hash) return;
-  const params = new URLSearchParams(hash.substring(1));
-  const token = params.get('access_token');
-  if (token) {
-    localStorage.setItem(DBX_TOKEN_KEY, token);
-    window.history.replaceState({}, document.title, window.location.pathname);
-    showToast('Dropbox connected ✓');
-  }
-}
-
-function connectDropbox() {
-  const authUrl = 'https://www.dropbox.com/oauth2/authorize'
-    + '?client_id=' + DBX_APP_KEY
-    + '&response_type=token'
-    + '&redirect_uri=' + encodeURIComponent(DBX_REDIRECT);
-  window.location.href = authUrl;
-}
-
-function disconnectDropbox() {
-  localStorage.removeItem(DBX_TOKEN_KEY);
-  showToast('Dropbox disconnected');
-  renderAdminPanel();
-}
-
-// ─────────────────────────────────────────────
-// DROPBOX READ / WRITE
-// ─────────────────────────────────────────────
-async function readFromDropbox() {
-  const token = getDbxToken();
-  if (!token) return null;
-  try {
-    const res = await fetch('https://content.dropboxapi.com/2/files/download', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Dropbox-API-Arg': JSON.stringify({ path: DBX_FILE_PATH })
-      }
-    });
-    if (res.status === 409) return null; // file doesn't exist yet
-    if (!res.ok) throw new Error('Dropbox read error ' + res.status);
-    const json = await res.json();
-    localStorage.setItem(DBX_CACHE_KEY, JSON.stringify(json));
-    return json;
-  } catch(e) {
-    console.error('Dropbox read failed:', e);
-    return null;
-  }
-}
-
-async function writeToDropbox(data) {
-  const token = getDbxToken();
-  if (!token) return false;
-  try {
-    const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Dropbox-API-Arg': JSON.stringify({ path: DBX_FILE_PATH, mode: 'overwrite', autorename: false }),
-        'Content-Type': 'application/octet-stream'
-      },
-      body: JSON.stringify(data, null, 2)
-    });
-    if (!res.ok) throw new Error('Dropbox write error ' + res.status);
-    return true;
-  } catch(e) {
-    console.error('Dropbox write failed:', e);
-    return false;
-  }
-}
 
 // ─────────────────────────────────────────────
 // INIT
@@ -328,7 +176,6 @@ async function init() {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 
-  handleOAuthCallback();
   loadCached();
   render();
   await fetchLatest();
@@ -377,23 +224,6 @@ async function fetchLatest() {
   } catch(e) {
     showSyncBar('Offline — showing cached content', 'offline');
   }
-}
-
-// ─────────────────────────────────────────────
-// SAVE
-// ─────────────────────────────────────────────
-async function saveAndPublish() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-  localStorage.setItem(DBX_CACHE_KEY, JSON.stringify(appData));
-
-  const token = getDbxToken();
-  if (!token) {
-    showToast('Connect Dropbox in Settings to publish live');
-    return false;
-  }
-
-  const ok = await writeToDropbox(appData);
-  return ok;
 }
 
 // ─────────────────────────────────────────────
@@ -507,7 +337,7 @@ function toggleFaq(id) {
 }
 
 function jumpToTip(id) {
-  switchTab('tips'); closeAdmin();
+  switchTab('tips');
   setTimeout(() => {
     const el = document.getElementById('tip-' + id);
     if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('tip-highlight'); setTimeout(() => el.classList.remove('tip-highlight'), 2000); }
@@ -535,383 +365,6 @@ function switchTab(tab) {
   if (searchWrap) searchWrap.style.display = tab === 'tools' ? 'none' : 'block';
 }
 
-// ─────────────────────────────────────────────
-// ADMIN — OVERLAY
-// ─────────────────────────────────────────────
-function openAdmin() {
-  document.getElementById('adminOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  if (adminAuthed) renderAdminPanel();
-  else renderLogin('');
-}
-
-function closeAdmin() {
-  document.getElementById('adminOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function overlayClick(e) { if (e.target === document.getElementById('adminOverlay')) closeAdmin(); }
-
-// ─────────────────────────────────────────────
-// ADMIN — LOGIN
-// ─────────────────────────────────────────────
-function getPass() { return localStorage.getItem(PASS_KEY) || ''; }
-
-function renderLogin(errMsg) {
-  document.getElementById('sheetTitle').textContent = 'Admin login';
-  document.getElementById('sheetBody').innerHTML = '<div class="login-wrap">'
-    + '<div class="login-logo">CT</div><h3>CrewTips Admin</h3>'
-    + '<p>Enter the admin password to manage content.</p>'
-    + '<div class="err" id="loginErr">' + errMsg + '</div>'
-    + '<div class="field"><label class="field-label">Password</label>'
-    + '<input type="password" id="pwInput" placeholder="Enter password" onkeydown="if(event.key===\'Enter\')checkPass()"/></div>'
-    + '<div class="btn-row"><button class="btn btn-ghost" onclick="closeAdmin()">Cancel</button>'
-    + '<button class="btn btn-primary" onclick="checkPass()">Sign in</button></div></div>';
-  setTimeout(() => { const el = document.getElementById('pwInput'); if(el) el.focus(); }, 120);
-}
-
-function checkPass() {
-  const v = document.getElementById('pwInput').value;
-  const stored = getPass();
-  if (stored && v === stored) { adminAuthed = true; adminSection = 'faqs'; adminCatFilter = 'all'; renderAdminPanel(); }
-  else if (!stored && v) { localStorage.setItem(PASS_KEY, v); adminAuthed = true; adminSection = 'faqs'; adminCatFilter = 'all'; renderAdminPanel(); showToast('Password set ✓'); }
-  else document.getElementById('loginErr').textContent = 'Incorrect password. Try again.';
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — PANEL
-// ─────────────────────────────────────────────
-function renderAdminPanel() {
-  document.getElementById('sheetTitle').textContent = 'Admin panel';
-  const secs = ['faqs','tips','add','categories','settings'];
-  document.getElementById('sheetBody').innerHTML =
-    '<div class="admin-tabs">'
-    + secs.map(s => '<button class="admin-tab ' + (adminSection===s?'active':'') + '" onclick="switchAdminSection(\'' + s + '\')">'
-      + {faqs:'FAQs',tips:'Tips',add:'Add new',categories:'Categories',settings:'Settings'}[s] + '</button>').join('')
-    + '</div><div id="adminSectionBody"></div>'
-    + '<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;display:flex;justify-content:flex-end">'
-    + '<button class="btn btn-ghost" style="font-size:12px" onclick="adminAuthed=false;renderLogin(\'\')">Sign out</button></div>';
-  renderAdminSection();
-}
-
-function switchAdminSection(sec) { adminSection = sec; editingFaqId = null; editingTipId = null; renderAdminPanel(); }
-
-// ─────────────────────────────────────────────
-// ADMIN — CATEGORY FILTER
-// ─────────────────────────────────────────────
-function catFilterBar() {
-  let html = '<div class="cat-filter-bar"><button class="cat-filter-btn ' + (adminCatFilter==='all'?'active':'') + '" onclick="adminCatFilter=\'all\';renderAdminSection()">All</button>';
-  Object.entries(appData.categories).forEach(([k,v]) => {
-    html += '<button class="cat-filter-btn ' + (adminCatFilter===k?'active':'') + '" onclick="adminCatFilter=\'' + k + '\';renderAdminSection()">' + escHtml(v) + '</button>';
-  });
-  return html + '</div>';
-}
-
-function catOptions(sel) {
-  return Object.entries(appData.categories).map(([k,v]) => '<option value="' + k + '" ' + (k===sel?'selected':'') + '>' + escHtml(v) + '</option>').join('');
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — SECTION BODY
-// ─────────────────────────────────────────────
-function renderAdminSection() {
-  const body = document.getElementById('adminSectionBody');
-
-  if (editingFaqId !== null) { const f = appData.faqs.find(x => x.id === editingFaqId); if(f) { body.innerHTML = faqEditForm(f); return; } editingFaqId = null; }
-  if (editingTipId !== null) { const t = appData.tips.find(x => x.id === editingTipId); if(t) { body.innerHTML = tipEditForm(t); return; } editingTipId = null; }
-
-  if (adminSection === 'faqs') {
-    const filtered = adminCatFilter === 'all' ? appData.faqs : appData.faqs.filter(f => f.cat === adminCatFilter);
-    body.innerHTML = catFilterBar()
-      + '<div class="item-list">'
-      + (filtered.length === 0 ? '<div class="item-list-empty">No FAQs here yet.</div>'
-        : filtered.map(f => '<div class="item-row"><span class="item-row-text">' + escHtml(f.q) + '</span>'
-          + '<span class="faq-cat cat-' + f.cat + '" style="font-size:10px;padding:2px 6px;flex-shrink:0">' + escHtml(catName(f.cat)) + '</span>'
-          + '<button class="item-edit" onclick="editingFaqId=' + f.id + ';renderAdminSection()">✏️</button>'
-          + '<button class="item-del" onclick="deleteFaq(' + f.id + ')">×</button></div>').join(''))
-      + '</div><p style="font-size:12px;color:var(--text3)">Use \'Add new\' to create a FAQ.</p>';
-
-  } else if (adminSection === 'tips') {
-    const filtered = adminCatFilter === 'all' ? appData.tips : appData.tips.filter(t => t.cat === adminCatFilter);
-    body.innerHTML = catFilterBar()
-      + '<div class="item-list">'
-      + (filtered.length === 0 ? '<div class="item-list-empty">No tips here yet.</div>'
-        : filtered.map(t => '<div class="item-row"><span style="font-size:18px;flex-shrink:0">' + escHtml(t.icon||'💡') + '</span>'
-          + '<span class="item-row-text">' + escHtml(t.title) + '</span>'
-          + '<button class="item-edit" onclick="editingTipId=' + t.id + ';renderAdminSection()">✏️</button>'
-          + '<button class="item-del" onclick="deleteTip(' + t.id + ')">×</button></div>').join(''))
-      + '</div><p style="font-size:12px;color:var(--text3)">Use \'Add new\' to create a tip.</p>';
-
-  } else if (adminSection === 'add') {
-    body.innerHTML = '<div class="field"><label class="field-label">What are you adding?</label>'
-      + '<select id="addType" onchange="renderAddForm()"><option value="faq">FAQ</option><option value="tip">Top tip</option></select></div>'
-      + '<div id="addFormBody"></div>';
-    renderAddForm();
-
-  } else if (adminSection === 'categories') {
-    const cats = Object.entries(appData.categories);
-    body.innerHTML = '<div class="item-list">'
-      + cats.map(([k,v]) => '<div class="item-row">'
-        + '<input type="text" id="catname-' + k + '" value="' + escHtml(v) + '" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:var(--font)"/>'
-        + '<button class="item-edit" onclick="saveCatName(\'' + k + '\')" title="Save">💾</button>'
-        + '<button class="item-del" onclick="deleteCategory(\'' + k + '\')">×</button></div>').join('')
-      + '</div>'
-      + '<div style="margin-top:12px;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">Add new category</div>'
-      + '<div style="display:flex;gap:8px;margin-bottom:6px">'
-      + '<input type="text" id="newCatKey" placeholder="key (e.g. hotels)" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--font)"/>'
-      + '<input type="text" id="newCatName" placeholder="Label (e.g. Hotels)" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--font)"/>'
-      + '</div><div class="err" id="catErr"></div>'
-      + '<div class="btn-row"><button class="btn btn-primary" onclick="addCategory()">Add category</button></div>'
-      + '<p style="font-size:11px;color:var(--text3);margin-top:10px">Key: lowercase, no spaces. Label: what users see.</p>';
-
-  } else if (adminSection === 'settings') {
-    const connected = !!getDbxToken();
-    body.innerHTML =
-      '<div class="pw-section">'
-      + '<div class="pw-section-title">📦 Dropbox connection</div>'
-      + (connected
-        ? '<div class="dropbox-status">✓ Dropbox connected — changes publish live</div>'
-          + '<button class="btn btn-danger" style="width:100%" onclick="disconnectDropbox()">Disconnect Dropbox</button>'
-        : '<p style="font-size:13px;color:var(--text2);margin-bottom:10px">Connect your Dropbox to publish changes live to all pilots. You only need to do this once per device.</p>'
-          + '<button class="dropbox-connect" onclick="connectDropbox()">Connect Dropbox</button>')
-      + '</div>'
-      + '<div class="pw-section">'
-      + '<div class="pw-section-title">💾 Data backup</div>'
-      + '<p style="font-size:13px;color:var(--text2);margin-bottom:10px">Download a copy of all your FAQs and tips at any time.</p>'
-      + '<div class="btn-row"><button class="btn btn-primary" onclick="exportData()">Export data now</button></div></div>'
-      + '<div class="pw-section">'
-      + '<div class="pw-section-title">🔑 Change admin password</div>'
-      + '<div class="field"><label class="field-label">Current password</label><input type="password" id="pwCurrent" placeholder="Current password"/></div>'
-      + '<div class="field"><label class="field-label">New password</label><input type="password" id="pwNew" placeholder="Min 6 characters"/></div>'
-      + '<div class="field"><label class="field-label">Confirm new password</label><input type="password" id="pwConfirm" placeholder="Repeat new password"/></div>'
-      + '<div class="err" id="pwErr"></div>'
-      + '<div class="btn-row"><button class="btn btn-primary" onclick="changePassword()">Update password</button></div></div>';
-  }
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — FAQ EDIT FORM
-// ─────────────────────────────────────────────
-function faqEditForm(f) {
-  const tipOptions = '<option value="">— None —</option>'
-    + appData.tips.map(t => '<option value="' + t.id + '" ' + (f.seeAlso == t.id ? 'selected' : '') + '>' + escHtml(t.icon||'💡') + ' ' + escHtml(t.title) + '</option>').join('');
-  return '<div class="edit-form-header">Editing FAQ</div>'
-    + '<div class="field"><label class="field-label">Question</label><input type="text" id="editQ" value="' + escHtml(f.q) + '"/></div>'
-    + '<div class="field"><label class="field-label">Category</label><select id="editCat">' + catOptions(f.cat) + '</select></div>'
-    + '<div class="field"><label class="field-label">Answer</label><textarea id="editA" rows="6">' + escHtml(f.a) + '</textarea>'
-    + '<div class="field-hint">Numbered steps: start lines with 1. 2. 3. — Inline tip link: [tip:Tip Title]</div></div>'
-    + '<div class="field"><label class="field-label">Intranet path <span style="font-weight:400;color:var(--text3)">(optional)</span></label><input type="text" id="editPath" value="' + escHtml(f.path||'') + '"/></div>'
-    + '<div class="field"><label class="field-label">Hidden keywords <span style="font-weight:400;color:var(--text3)">(comma-separated)</span></label>'
-    + '<input type="text" id="editKeywords" value="' + escHtml(f.keywords||'') + '" placeholder="e.g. JFK, Kennedy, New York"/>'
-    + '<div class="field-hint">Invisible to users but included in search.</div></div>'
-    + '<div class="field"><label class="field-label">See also tip <span style="font-weight:400;color:var(--text3)">(optional)</span></label>'
-    + '<select id="editSeeAlso">' + tipOptions + '</select></div>'
-    + '<div class="err" id="editErr"></div>'
-    + '<div class="btn-row"><button class="btn btn-ghost" onclick="editingFaqId=null;renderAdminSection()">Cancel</button>'
-    + '<button class="btn btn-primary" onclick="saveFaqEdit(' + f.id + ')">Save changes</button></div>';
-}
-
-async function saveFaqEdit(id) {
-  const q = document.getElementById('editQ').value.trim();
-  const a = document.getElementById('editA').value.trim();
-  const cat = document.getElementById('editCat').value;
-  const path = document.getElementById('editPath').value.trim();
-  const keywords = document.getElementById('editKeywords').value.trim();
-  const seeAlso = document.getElementById('editSeeAlso').value || null;
-  if (!q || !a) { document.getElementById('editErr').textContent = 'Question and answer are required.'; return; }
-  document.getElementById('editErr').textContent = 'Saving…';
-  const idx = appData.faqs.findIndex(f => f.id === id);
-  if (idx > -1) appData.faqs[idx] = { ...appData.faqs[idx], q, a, cat, path, keywords, seeAlso: seeAlso ? Number(seeAlso) : null };
-  const ok = await saveAndPublish();
-  render(); editingFaqId = null; adminSection = 'faqs'; renderAdminPanel();
-  showToast(ok ? 'FAQ updated and published ✓' : 'FAQ saved locally only');
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — TIP EDIT FORM
-// ─────────────────────────────────────────────
-function tipEditForm(t) {
-  return '<div class="edit-form-header">Editing tip</div>'
-    + '<div class="field"><label class="field-label">Title</label><input type="text" id="editTTitle" value="' + escHtml(t.title) + '"/></div>'
-    + '<div class="field"><label class="field-label">Tip text</label><textarea id="editTText" rows="5">' + escHtml(t.text) + '</textarea></div>'
-    + '<div class="field"><label class="field-label">Category</label><select id="editTCat">' + catOptions(t.cat) + '</select></div>'
-    + '<div class="field"><label class="field-label">Icon (emoji)</label><input type="text" id="editTIcon" value="' + escHtml(t.icon||'💡') + '" style="width:70px"/></div>'
-    + '<div class="err" id="editTErr"></div>'
-    + '<div class="btn-row"><button class="btn btn-ghost" onclick="editingTipId=null;renderAdminSection()">Cancel</button>'
-    + '<button class="btn btn-primary" onclick="saveTipEdit(' + t.id + ')">Save changes</button></div>';
-}
-
-async function saveTipEdit(id) {
-  const title = document.getElementById('editTTitle').value.trim();
-  const text = document.getElementById('editTText').value.trim();
-  const cat = document.getElementById('editTCat').value;
-  const icon = document.getElementById('editTIcon').value.trim() || '💡';
-  if (!title || !text) { document.getElementById('editTErr').textContent = 'Title and text are required.'; return; }
-  const idx = appData.tips.findIndex(t => t.id === id);
-  if (idx > -1) appData.tips[idx] = { ...appData.tips[idx], title, text, cat, icon };
-  const ok = await saveAndPublish();
-  render(); editingTipId = null; adminSection = 'tips'; renderAdminPanel();
-  showToast(ok ? 'Tip updated and published ✓' : 'Tip saved locally only');
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — ADD FORM
-// ─────────────────────────────────────────────
-function renderAddForm() {
-  const type = document.getElementById('addType').value;
-  const body = document.getElementById('addFormBody');
-  const tipOptions = '<option value="">— None —</option>' + appData.tips.map(t => '<option value="' + t.id + '">' + escHtml(t.icon||'💡') + ' ' + escHtml(t.title) + '</option>').join('');
-  if (type === 'faq') {
-    body.innerHTML = '<div class="field"><label class="field-label">Question</label><input type="text" id="newQ" placeholder="e.g. How do I request a duty swap?"/></div>'
-      + '<div class="field"><label class="field-label">Category</label><select id="newCat">' + catOptions('general') + '</select></div>'
-      + '<div class="field"><label class="field-label">Answer</label><textarea id="newA" placeholder="Full answer. Numbered steps: start lines with 1. 2. 3. — Inline tip: [tip:Tip Title]"></textarea></div>'
-      + '<div class="field"><label class="field-label">Intranet path <span style="font-weight:400;color:var(--text3)">(optional)</span></label><input type="text" id="newPath" placeholder="e.g. Fusion → HR Self-Service → …"/></div>'
-      + '<div class="field"><label class="field-label">Hidden keywords <span style="font-weight:400;color:var(--text3)">(comma-separated)</span></label><input type="text" id="newKeywords" placeholder="e.g. JFK, Kennedy, New York"/></div>'
-      + '<div class="field"><label class="field-label">See also tip <span style="font-weight:400;color:var(--text3)">(optional)</span></label><select id="newSeeAlso">' + tipOptions + '</select></div>'
-      + '<div class="err" id="addErr"></div>'
-      + '<div class="btn-row"><button class="btn btn-ghost" onclick="switchAdminSection(\'faqs\')">Cancel</button><button class="btn btn-primary" onclick="addFaq()">Add FAQ</button></div>';
-  } else {
-    body.innerHTML = '<div class="field"><label class="field-label">Title</label><input type="text" id="newTTitle" placeholder="Short, actionable title"/></div>'
-      + '<div class="field"><label class="field-label">Tip text</label><textarea id="newTText" placeholder="Be specific and practical."></textarea></div>'
-      + '<div class="field"><label class="field-label">Category</label><select id="newTCat">' + catOptions('general') + '</select></div>'
-      + '<div class="field"><label class="field-label">Icon (emoji)</label><input type="text" id="newTIcon" placeholder="💡" style="width:70px"/></div>'
-      + '<div class="err" id="addErr"></div>'
-      + '<div class="btn-row"><button class="btn btn-ghost" onclick="switchAdminSection(\'tips\')">Cancel</button><button class="btn btn-primary" onclick="addTip()">Add tip</button></div>';
-  }
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — CRUD
-// ─────────────────────────────────────────────
-async function addFaq() {
-  const q = document.getElementById('newQ').value.trim();
-  const a = document.getElementById('newA').value.trim();
-  const cat = document.getElementById('newCat').value;
-  const path = document.getElementById('newPath').value.trim();
-  const keywords = document.getElementById('newKeywords').value.trim();
-  const seeAlso = document.getElementById('newSeeAlso').value || null;
-  if (!q || !a) { document.getElementById('addErr').textContent = 'Question and answer are required.'; return; }
-  document.getElementById('addErr').textContent = 'Saving…';
-  appData.faqs.push({ id: Date.now(), q, cat, a, path, keywords, seeAlso: seeAlso ? Number(seeAlso) : null });
-  const ok = await saveAndPublish();
-  render(); adminSection = 'faqs'; renderAdminPanel();
-  showToast(ok ? 'FAQ added and published ✓' : 'FAQ saved locally only');
-}
-
-async function addTip() {
-  const title = document.getElementById('newTTitle').value.trim();
-  const text = document.getElementById('newTText').value.trim();
-  const cat = document.getElementById('newTCat').value;
-  const icon = document.getElementById('newTIcon').value.trim() || '💡';
-  if (!title || !text) { document.getElementById('addErr').textContent = 'Title and tip text are required.'; return; }
-  appData.tips.push({ id: Date.now(), title, text, cat, icon });
-  const ok = await saveAndPublish();
-  render(); adminSection = 'tips'; renderAdminPanel();
-  showToast(ok ? 'Tip added and published ✓' : 'Tip saved locally only');
-}
-
-async function deleteFaq(id) {
-  if (!confirm('Delete this FAQ?')) return;
-  appData.faqs = appData.faqs.filter(f => f.id !== id);
-  const ok = await saveAndPublish();
-  render(); renderAdminPanel();
-  showToast(ok ? 'FAQ deleted and published ✓' : 'FAQ deleted locally only');
-}
-
-async function deleteTip(id) {
-  if (!confirm('Delete this tip?')) return;
-  appData.tips = appData.tips.filter(t => t.id !== id);
-  const ok = await saveAndPublish();
-  render(); renderAdminPanel();
-  showToast(ok ? 'Tip deleted and published ✓' : 'Tip deleted locally only');
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — CATEGORIES
-// ─────────────────────────────────────────────
-async function saveCatName(key) {
-  const input = document.getElementById('catname-' + key);
-  if (!input) return;
-  const newName = input.value.trim();
-  if (!newName) { showToast('Name cannot be empty'); return; }
-  appData.categories[key] = newName;
-  const ok = await saveAndPublish();
-  render(); renderAdminSection();
-  showToast(ok ? 'Category updated ✓' : 'Updated locally only');
-}
-
-async function addCategory() {
-  const key = document.getElementById('newCatKey').value.trim().toLowerCase().replace(/\s+/g,'-');
-  const name = document.getElementById('newCatName').value.trim();
-  const errEl = document.getElementById('catErr');
-  if (!key || !name) { errEl.textContent = 'Both key and label are required.'; return; }
-  if (appData.categories[key]) { errEl.textContent = 'That key already exists.'; return; }
-  if (!/^[a-z0-9-]+$/.test(key)) { errEl.textContent = 'Key must be lowercase letters, numbers, or hyphens only.'; return; }
-  appData.categories[key] = name;
-  const ok = await saveAndPublish();
-  render(); renderAdminSection();
-  showToast(ok ? 'Category added ✓' : 'Added locally only');
-}
-
-async function deleteCategory(key) {
-  const inUse = appData.faqs.some(f => f.cat === key) || appData.tips.some(t => t.cat === key);
-  if (inUse) {
-    if (!confirm('This category is used by some FAQs or tips. They will move to General. Continue?')) return;
-    appData.faqs.forEach(f => { if (f.cat === key) f.cat = 'general'; });
-    appData.tips.forEach(t => { if (t.cat === key) t.cat = 'general'; });
-  } else {
-    if (!confirm('Delete this category?')) return;
-  }
-  delete appData.categories[key];
-  const ok = await saveAndPublish();
-  render(); renderAdminSection();
-  showToast(ok ? 'Category deleted ✓' : 'Deleted locally only');
-}
-
-// ─────────────────────────────────────────────
-// ADMIN — PASSWORD
-// ─────────────────────────────────────────────
-function changePassword() {
-  const current = document.getElementById('pwCurrent').value;
-  const newPw = document.getElementById('pwNew').value;
-  const confirm = document.getElementById('pwConfirm').value;
-  const errEl = document.getElementById('pwErr');
-  if (current !== getPass()) { errEl.textContent = 'Current password is incorrect.'; return; }
-  if (newPw.length < 6) { errEl.textContent = 'New password must be at least 6 characters.'; return; }
-  if (newPw !== confirm) { errEl.textContent = 'Passwords do not match.'; return; }
-  localStorage.setItem(PASS_KEY, newPw);
-  errEl.textContent = '';
-  showToast('Password updated ✓');
-  ['pwCurrent','pwNew','pwConfirm'].forEach(id => { document.getElementById(id).value = ''; });
-}
-
-// ─────────────────────────────────────────────
-// EXPORT
-// ─────────────────────────────────────────────
-function exportData() {
-  const json = JSON.stringify(appData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
-  a.href = url; a.download = 'crewtips-export-' + ts + '.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('Data exported ✓');
-}
-
-// ─────────────────────────────────────────────
-// TOAST
-// ─────────────────────────────────────────────
-let toastTimer;
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
-}
-
-// ─────────────────────────────────────────────
 // DEFAULT DATA
 // ─────────────────────────────────────────────
 function getDefaultData() {
