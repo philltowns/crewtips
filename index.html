@@ -65,8 +65,18 @@
     .faq-body.open { display: block; }
     .faq-body p { margin-top: 10px; }
     .faq-body ol { margin: 8px 0 8px 18px; display: flex; flex-direction: column; gap: 4px; }
+    .faq-body ul { margin: 8px 0 8px 18px; display: flex; flex-direction: column; gap: 4px; list-style: disc; }
+    .faq-body strong { font-weight: 700; }
+    .faq-body em { font-style: italic; }
+    .faq-body u { text-decoration: underline; }
     .faq-body strong { color: var(--text); font-weight: 500; }
-    .faq-path { display: inline-flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; font-size: 12px; color: var(--text2); margin-top: 10px; font-family: 'SF Mono', 'Fira Code', monospace; line-height: 1.4; }
+    .faq-path { display: inline-flex; align-items: center; gap: 6px; background: var(--red-light); border: none; border-radius: 20px; padding: 6px 12px 6px 8px; font-size: 12px; font-weight: 500; color: var(--red-dark); margin-top: 10px; line-height: 1.4; }
+    .faq-path-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; background: var(--red); border-radius: 50%; font-size: 9px; color: #fff; flex-shrink: 0; }
+    .faq-links { margin-top: 12px; }
+    .faq-links-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 6px; }
+    .faq-link { display: block; font-size: 13px; color: var(--red-dark); text-decoration: none; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .faq-link:last-child { border-bottom: none; }
+    .faq-link:active { opacity: 0.7; }
     .cat-fusion { background: #e6f1fb; color: #185FA5; }
     .cat-roster { background: #eaf3de; color: #3B6D11; }
     .cat-pay { background: #faeeda; color: #854F0B; }
@@ -93,6 +103,12 @@
     .see-also-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
     .see-also-arrow { font-size: 20px; color: var(--red); font-weight: 300; flex-shrink: 0; }
     .inline-tip-link { display: inline; background: none; border: none; color: var(--red); font-size: inherit; font-family: var(--font); font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+    .faq-img-block { margin: 10px 0; }
+    .faq-img-reveal-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font); }
+    .faq-img-reveal-btn:disabled { color: var(--text3); }
+    .faq-img { display: block; max-width: 100%; border-radius: var(--radius-sm); margin-top: 2px; }
+    .faq-img-error { display: none; font-size: 12px; color: var(--red); margin-top: 6px; }
+    .faq-img-error.show { display: block; }
     .pane { display: none; }
     .pane.active { display: block; }
     .tools-grid { display: flex; flex-direction: column; gap: 10px; }
@@ -294,20 +310,55 @@ function renderFaqs() {
   pane.innerHTML = '<div class="section-label">Questions &amp; answers</div>' + list.map(f => faqCard(f)).join('');
 }
 
-function faqCard(f) {
-  let answerHtml = ''; let inList = false;
-  f.a.split('\n').forEach(line => {
-    const processed = line.replace(/\[tip:([^\]]+)\]/g, (match, title) => {
-      const tip = appData.tips.find(t => t.title.toLowerCase() === title.toLowerCase().trim());
-      if (!tip) return '<span style="color:var(--red);font-style:italic">[tip not found: ' + escHtml(title) + ']</span>';
-      return '<button class="inline-tip-link" onclick="jumpToTip(' + tip.id + ')">' + escHtml(tip.title) + ' →</button>';
-    });
-    const m = line.match(/^(\d+)\.\s+(.+)/);
-    if (m) { if (!inList) { answerHtml += '<ol>'; inList = true; } answerHtml += '<li>' + hl(m[2], searchTerm) + '</li>'; }
-    else { if (inList) { answerHtml += '</ol>'; inList = false; } if (line.trim()) answerHtml += '<p>' + hl(processed, searchTerm) + '</p>'; }
+// Runs on text that has ALREADY been through escHtml() (via hl()) — safe
+// to inject real HTML tags at this point, since any HTML the user typed
+// literally has already been neutralised.
+function formatInline(text) {
+  text = text.replace(/\[tip:([^\]]+)\]/g, (match, title) => {
+    const tip = appData.tips.find(t => t.title.toLowerCase() === title.toLowerCase().trim());
+    if (!tip) return '<span style="color:var(--red);font-style:italic">[tip not found: ' + title + ']</span>';
+    return '<button class="inline-tip-link" onclick="jumpToTip(' + tip.id + ')">' + escHtml(tip.title) + ' →</button>';
   });
-  if (inList) answerHtml += '</ol>';
-  const pathHtml = f.path ? '<div class="faq-path">📍 ' + escHtml(f.path) + '</div>' : '';
+  text = text.replace(/\[b\](.+?)\[\/b\]/g, '<strong>$1</strong>');
+  text = text.replace(/\[i\](.+?)\[\/i\]/g, '<em>$1</em>');
+  text = text.replace(/\[u\](.+?)\[\/u\]/g, '<u>$1</u>');
+  return text;
+}
+
+function faqCard(f) {
+  let answerHtml = ''; let listType = null;
+  const closeList = () => { if (listType) { answerHtml += (listType === 'ol' ? '</ol>' : '</ul>'); listType = null; } };
+  f.a.split('\n').forEach(line => {
+    const imgMatch = line.trim().match(/^\[img:(.+)\]$/);
+    if (imgMatch) {
+      closeList();
+      const url = escHtml(imgMatch[1].trim());
+      answerHtml += '<div class="faq-img-block" data-img-url="' + url + '">'
+        + '<button class="faq-img-reveal-btn" onclick="revealImage(this)">📷 View image</button>'
+        + '<div class="faq-img-error"></div></div>';
+      return;
+    }
+    const numMatch = line.match(/^(\d+)\.\s+(.+)/);
+    const bulletMatch = line.match(/^-\s+(.+)/);
+    if (numMatch) {
+      if (listType !== 'ol') { closeList(); answerHtml += '<ol>'; listType = 'ol'; }
+      answerHtml += '<li>' + formatInline(hl(numMatch[2], searchTerm)) + '</li>';
+    } else if (bulletMatch) {
+      if (listType !== 'ul') { closeList(); answerHtml += '<ul>'; listType = 'ul'; }
+      answerHtml += '<li>' + formatInline(hl(bulletMatch[1], searchTerm)) + '</li>';
+    } else {
+      closeList();
+      if (line.trim()) answerHtml += '<p>' + formatInline(hl(line, searchTerm)) + '</p>';
+    }
+  });
+  closeList();
+  const pathHtml = f.path ? '<div class="faq-path"><span class="faq-path-icon">📍</span>' + escHtml(f.path) + '</div>' : '';
+  let linksHtml = '';
+  if (f.links && f.links.length) {
+    linksHtml = '<div class="faq-links"><div class="faq-links-label">🔗 Related links</div>'
+      + f.links.map(l => '<a class="faq-link" href="' + escHtml(l.url) + '" target="_blank" rel="noopener">' + escHtml(l.label) + '</a>').join('')
+      + '</div>';
+  }
   let seeAlsoHtml = '';
   if (f.seeAlso) {
     const tip = appData.tips.find(t => t.id == f.seeAlso);
@@ -324,7 +375,7 @@ function faqCard(f) {
     + '<span class="faq-q">' + hl(f.q, searchTerm) + '</span>'
     + '<div class="faq-right"><span class="faq-cat cat-' + f.cat + '">' + escHtml(catName(f.cat)) + '</span>'
     + '<span class="faq-chevron" id="chev-' + f.id + '">▾</span></div></div>'
-    + '<div class="faq-body" id="body-' + f.id + '">' + answerHtml + pathHtml + seeAlsoHtml + '</div></div>';
+    + '<div class="faq-body" id="body-' + f.id + '">' + answerHtml + pathHtml + linksHtml + seeAlsoHtml + '</div></div>';
 }
 
 function toggleFaq(id) {
@@ -334,6 +385,34 @@ function toggleFaq(id) {
   document.querySelectorAll('.faq-body.open').forEach(b => b.classList.remove('open'));
   document.querySelectorAll('.faq-chevron.open').forEach(c => c.classList.remove('open'));
   if (!isOpen) { body.classList.add('open'); chev.classList.add('open'); }
+}
+
+// Nothing downloads until this is tapped — the actual fetch is what the
+// service worker intercepts and caches (image URLs are cache-first, see
+// sw.js), so a second tap anywhere/anytime after the first successful
+// load works instantly and fully offline.
+async function revealImage(btn) {
+  const container = btn.closest('.faq-img-block');
+  const url = container.dataset.imgUrl;
+  const errEl = container.querySelector('.faq-img-error');
+  errEl.textContent = ''; errEl.classList.remove('show');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const img = document.createElement('img');
+    img.src = objectUrl;
+    img.className = 'faq-img';
+    container.replaceChild(img, btn);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '📷 View image';
+    errEl.textContent = "Couldn't load image — check your connection and try again.";
+    errEl.classList.add('show');
+  }
 }
 
 function jumpToTip(id) {
