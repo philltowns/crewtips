@@ -27,9 +27,9 @@
     /* ── Header ── */
     .header { background: var(--red); padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 12px; }
     .back-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-family: var(--font); text-decoration: none; display: flex; align-items: center; gap: 4px; }
-    .header-reset-btn { margin-left: auto; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-family: var(--font); }
+    .reset-top-btn { display: block; width: 100%; background: var(--white); border: 1px solid var(--red); color: var(--red); font-size: 14px; font-weight: 600; padding: 12px 16px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font); margin-bottom: 16px; }
+    .reset-top-btn:active { background: var(--red-light); }
     .header-title { font-size: 17px; font-weight: 700; color: #fff; }
-    .header-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
 
     /* ── Layout ── */
     .main { padding: 16px 14px calc(var(--safe-bottom) + 24px); max-width: 680px; margin: 0 auto; }
@@ -146,12 +146,12 @@
   <a href="index.html" class="back-btn">← Back</a>
   <div>
     <div class="header-title">Crew Rest Calculator</div>
-    <div class="header-sub">Augmented crew rest planning</div>
   </div>
-  <button class="header-reset-btn" onclick="resetAll()">Reset</button>
 </div>
 
 <div class="main">
+
+  <button class="reset-top-btn" onclick="resetAll()">↺ New flight — Reset</button>
 
   <!-- Crew size -->
   <div class="card">

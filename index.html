@@ -89,6 +89,13 @@
     .tip-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.35; }
     .tip-text { font-size: 13px; color: var(--text2); line-height: 1.65; }
     .tip-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 7px; letter-spacing: 0.2px; }
+    .tip-readmore { font-size: 12px; font-weight: 600; color: var(--red-dark); margin-top: 6px; display: flex; align-items: center; gap: 3px; }
+    .tip-readmore-chevron { display: inline-block; transition: transform 0.2s; font-size: 10px; }
+    .tip-readmore.open .tip-readmore-chevron { transform: rotate(180deg); }
+    .tip-article { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .tip-article.open { display: block; }
+    .tip-article p { margin-top: 8px; }
+    .tip-article p:first-child { margin-top: 0; }
     .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
     .empty-icon { font-size: 36px; margin-bottom: 10px; }
     .empty p { font-size: 14px; line-height: 1.6; }
@@ -109,6 +116,13 @@
     .faq-img { display: block; max-width: 100%; border-radius: var(--radius-sm); margin-top: 2px; }
     .faq-img-error { display: none; font-size: 12px; color: var(--red); margin-top: 6px; }
     .faq-img-error.show { display: block; }
+    .faq-img-retry { background: none; border: none; color: var(--red-dark); font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer; font-family: var(--font); padding: 0; margin-left: 4px; }
+    .faq-imgset { margin: 10px 0; }
+    .faq-imgset-items { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+    .faq-imgset-item { }
+    .faq-img-caption { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+    .faq-img-placeholder { height: 120px; border-radius: var(--radius-sm); background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--text3); font-size: 12px; }
+    .faq-img-placeholder::after { content: 'Loading…'; }
     .pane { display: none; }
     .pane.active { display: block; }
     .tools-grid { display: flex; flex-direction: column; gap: 10px; }
@@ -325,33 +339,76 @@ function formatInline(text) {
   return text;
 }
 
-function faqCard(f) {
-  let answerHtml = ''; let listType = null;
-  const closeList = () => { if (listType) { answerHtml += (listType === 'ol' ? '</ol>' : '</ul>'); listType = null; } };
-  f.a.split('\n').forEach(line => {
-    const imgMatch = line.trim().match(/^\[img:(.+)\]$/);
-    if (imgMatch) {
-      closeList();
-      const url = escHtml(imgMatch[1].trim());
-      answerHtml += '<div class="faq-img-block" data-img-url="' + url + '">'
-        + '<button class="faq-img-reveal-btn" onclick="revealImage(this)">📷 View image</button>'
-        + '<div class="faq-img-error"></div></div>';
+// Shared rich-text engine — used for both FAQ answers and (now) Top Tip
+// full articles, so both get the same formatting/bullets/images/tip-links
+// support for free rather than duplicating this logic.
+function renderRichText(text) {
+  let html = ''; let listType = null;
+  let currentSet = null; // { title, items: [{url, title}] } while inside [imgset:...]...[/imgset]
+  const closeList = () => { if (listType) { html += (listType === 'ol' ? '</ol>' : '</ul>'); listType = null; } };
+  const renderImageBlock = (url, title) => {
+    const label = title ? escHtml(title) + ' — view image' : 'View image';
+    return '<div class="faq-img-block" data-img-url="' + escHtml(url) + '">'
+      + '<button class="faq-img-reveal-btn" data-label="📷 ' + label + '" onclick="revealImage(this)">📷 ' + label + '</button>'
+      + '<div class="faq-img-error"></div></div>';
+  };
+
+  text.split('\n').forEach(line => {
+    const trimmed = line.trim();
+
+    if (trimmed === '[/imgset]') {
+      if (currentSet) {
+        const count = currentSet.items.length;
+        const label = (currentSet.title ? escHtml(currentSet.title) + ' — ' : '') + 'view images (' + count + ')';
+        html += '<div class="faq-imgset">'
+          + '<button class="faq-img-reveal-btn" onclick="revealImageSet(this)">📷 ' + label + '</button>'
+          + '<div class="faq-imgset-items" style="display:none">'
+          + currentSet.items.map(item => {
+              const cap = item.title ? '<div class="faq-img-caption">' + escHtml(item.title) + '</div>' : '';
+              return '<div class="faq-imgset-item" data-img-url="' + escHtml(item.url) + '">' + cap
+                + '<div class="faq-img-placeholder"></div><div class="faq-img-error"></div></div>';
+            }).join('')
+          + '</div></div>';
+      }
+      currentSet = null;
       return;
     }
+    const setOpenMatch = trimmed.match(/^\[imgset:(.*)\]$/);
+    if (setOpenMatch) {
+      closeList();
+      currentSet = { title: setOpenMatch[1].trim(), items: [] };
+      return;
+    }
+
+    const imgMatch = trimmed.match(/^\[img:([^|\]]+)(?:\|([^\]]+))?\]$/);
+    if (imgMatch) {
+      if (currentSet) { currentSet.items.push({ url: imgMatch[1].trim(), title: imgMatch[2] ? imgMatch[2].trim() : '' }); return; }
+      closeList();
+      html += renderImageBlock(imgMatch[1].trim(), imgMatch[2] ? imgMatch[2].trim() : '');
+      return;
+    }
+
+    if (currentSet) return; // ignore stray non-image lines inside a set
+
     const numMatch = line.match(/^(\d+)\.\s+(.+)/);
     const bulletMatch = line.match(/^-\s+(.+)/);
     if (numMatch) {
-      if (listType !== 'ol') { closeList(); answerHtml += '<ol>'; listType = 'ol'; }
-      answerHtml += '<li>' + formatInline(hl(numMatch[2], searchTerm)) + '</li>';
+      if (listType !== 'ol') { closeList(); html += '<ol>'; listType = 'ol'; }
+      html += '<li>' + formatInline(hl(numMatch[2], searchTerm)) + '</li>';
     } else if (bulletMatch) {
-      if (listType !== 'ul') { closeList(); answerHtml += '<ul>'; listType = 'ul'; }
-      answerHtml += '<li>' + formatInline(hl(bulletMatch[1], searchTerm)) + '</li>';
+      if (listType !== 'ul') { closeList(); html += '<ul>'; listType = 'ul'; }
+      html += '<li>' + formatInline(hl(bulletMatch[1], searchTerm)) + '</li>';
     } else {
       closeList();
-      if (line.trim()) answerHtml += '<p>' + formatInline(hl(line, searchTerm)) + '</p>';
+      if (line.trim()) html += '<p>' + formatInline(hl(line, searchTerm)) + '</p>';
     }
   });
   closeList();
+  return html;
+}
+
+function faqCard(f) {
+  const answerHtml = renderRichText(f.a);
   const pathHtml = f.path ? '<div class="faq-path"><span class="faq-path-icon">📍</span>' + escHtml(f.path) + '</div>' : '';
   let linksHtml = '';
   if (f.links && f.links.length) {
@@ -396,6 +453,7 @@ async function revealImage(btn) {
   const url = container.dataset.imgUrl;
   const errEl = container.querySelector('.faq-img-error');
   errEl.textContent = ''; errEl.classList.remove('show');
+  const originalLabel = btn.dataset.label || '📷 View image';
   btn.disabled = true;
   btn.textContent = 'Loading…';
   try {
@@ -409,10 +467,56 @@ async function revealImage(btn) {
     container.replaceChild(img, btn);
   } catch(e) {
     btn.disabled = false;
-    btn.textContent = '📷 View image';
+    btn.textContent = originalLabel;
     errEl.textContent = "Couldn't load image — check your connection and try again.";
     errEl.classList.add('show');
   }
+}
+
+// Reveals every image in a set together on one tap. Each image is still
+// fetched/cached individually — if one fails (patchy signal mid-download)
+// the others still show normally, with just that one item getting an
+// inline retry rather than failing the whole set.
+async function revealImageSet(btn) {
+  const container = btn.closest('.faq-imgset');
+  const itemsEl = container.querySelector('.faq-imgset-items');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  itemsEl.style.display = 'flex';
+  btn.style.display = 'none';
+  const itemEls = itemsEl.querySelectorAll('.faq-imgset-item');
+  await Promise.all(Array.from(itemEls).map(el => revealSetItem(el)));
+}
+
+async function revealSetItem(el) {
+  const url = el.dataset.imgUrl;
+  const placeholder = el.querySelector('.faq-img-placeholder');
+  const errEl = el.querySelector('.faq-img-error');
+  if (!placeholder) return; // already revealed (e.g. a retry)
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const img = document.createElement('img');
+    img.src = objectUrl;
+    img.className = 'faq-img';
+    placeholder.replaceWith(img);
+  } catch(e) {
+    placeholder.remove();
+    errEl.innerHTML = "Couldn't load this image. <button class=\"faq-img-retry\" onclick=\"retrySetItem(this)\">Retry</button>";
+    errEl.classList.add('show');
+  }
+}
+
+function retrySetItem(retryBtn) {
+  const el = retryBtn.closest('.faq-imgset-item');
+  const errEl = el.querySelector('.faq-img-error');
+  errEl.textContent = ''; errEl.classList.remove('show');
+  const placeholder = document.createElement('div');
+  placeholder.className = 'faq-img-placeholder';
+  el.insertBefore(placeholder, errEl);
+  revealSetItem(el);
 }
 
 function jumpToTip(id) {
@@ -420,6 +524,8 @@ function jumpToTip(id) {
   setTimeout(() => {
     const el = document.getElementById('tip-' + id);
     if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('tip-highlight'); setTimeout(() => el.classList.remove('tip-highlight'), 2000); }
+    const article = document.getElementById('tip-article-' + id);
+    if (article && !article.classList.contains('open')) toggleTipArticle(id);
   }, 120);
 }
 
@@ -429,11 +535,27 @@ function renderTips() {
   const pane = document.getElementById('pane-tips');
   if (!list.length) { pane.innerHTML = '<div class="empty"><div class="empty-icon">💡</div><p>No tips yet.</p></div>'; return; }
   pane.innerHTML = '<div class="section-label">Top tips from the fleet</div>'
-    + list.map(t => '<div class="tip-card" id="tip-' + t.id + '">'
-      + '<div class="tip-icon" style="background:' + catIconBg(t.cat) + '">' + escHtml(t.icon||'💡') + '</div>'
-      + '<div class="tip-body"><div class="tip-title">' + escHtml(t.title) + '</div>'
-      + '<div class="tip-text">' + escHtml(t.text) + '</div>'
-      + '<span class="tip-badge cat-' + t.cat + '">' + escHtml(catName(t.cat)) + '</span></div></div>').join('');
+    + list.map(t => {
+      const hasArticle = t.body && t.body.trim();
+      const clickAttr = hasArticle ? ' onclick="toggleTipArticle(' + t.id + ')" style="cursor:pointer"' : '';
+      return '<div class="tip-card" id="tip-' + t.id + '">'
+        + '<div class="tip-icon" style="background:' + catIconBg(t.cat) + '">' + escHtml(t.icon||'💡') + '</div>'
+        + '<div class="tip-body"' + clickAttr + '><div class="tip-title">' + escHtml(t.title) + '</div>'
+        + '<div class="tip-text">' + escHtml(t.text) + '</div>'
+        + (hasArticle ? '<div class="tip-readmore" id="tip-readmore-' + t.id + '">Read more <span class="tip-readmore-chevron">▾</span></div>' : '')
+        + '<span class="tip-badge cat-' + t.cat + '">' + escHtml(catName(t.cat)) + '</span>'
+        + (hasArticle ? '<div class="tip-article" id="tip-article-' + t.id + '">' + renderRichText(t.body) + '</div>' : '')
+        + '</div></div>';
+    }).join('');
+}
+
+function toggleTipArticle(id) {
+  const article = document.getElementById('tip-article-' + id);
+  const readmore = document.getElementById('tip-readmore-' + id);
+  if (!article) return;
+  const isOpen = article.classList.contains('open');
+  article.classList.toggle('open', !isOpen);
+  readmore.classList.toggle('open', !isOpen);
 }
 
 function switchTab(tab) {
