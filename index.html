@@ -114,6 +114,7 @@
     .faq-img-reveal-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font); }
     .faq-img-reveal-btn:disabled { color: var(--text3); }
     .faq-img { display: block; max-width: 100%; border-radius: var(--radius-sm); margin-top: 2px; }
+    .faq-img-hide-btn { display: block; background: none; border: none; color: var(--text3); font-size: 12px; font-weight: 500; padding: 6px 0 0; cursor: pointer; font-family: var(--font); }
     .faq-img-error { display: none; font-size: 12px; color: var(--red); margin-top: 6px; }
     .faq-img-error.show { display: block; }
     .faq-img-retry { background: none; border: none; color: var(--red-dark); font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer; font-family: var(--font); padding: 0; margin-left: 4px; }
@@ -361,7 +362,7 @@ function renderRichText(text) {
         const count = currentSet.items.length;
         const label = (currentSet.title ? escHtml(currentSet.title) + ' — ' : '') + 'view images (' + count + ')';
         html += '<div class="faq-imgset">'
-          + '<button class="faq-img-reveal-btn" onclick="revealImageSet(this)">📷 ' + label + '</button>'
+          + '<button class="faq-img-reveal-btn" data-label="📷 ' + label + '" onclick="revealImageSet(this)">📷 ' + label + '</button>'
           + '<div class="faq-imgset-items" style="display:none">'
           + currentSet.items.map(item => {
               const cap = item.title ? '<div class="faq-img-caption">' + escHtml(item.title) + '</div>' : '';
@@ -450,6 +451,15 @@ function toggleFaq(id) {
 // load works instantly and fully offline.
 async function revealImage(btn) {
   const container = btn.closest('.faq-img-block');
+  const existingImg = container.querySelector('.faq-img');
+  if (existingImg) {
+    // Already fetched once this session — just show it again, no re-fetch
+    existingImg.style.display = '';
+    const hideLink = container.querySelector('.faq-img-hide-btn');
+    if (hideLink) hideLink.style.display = '';
+    btn.style.display = 'none';
+    return;
+  }
   const url = container.dataset.imgUrl;
   const errEl = container.querySelector('.faq-img-error');
   errEl.textContent = ''; errEl.classList.remove('show');
@@ -464,13 +474,30 @@ async function revealImage(btn) {
     const img = document.createElement('img');
     img.src = objectUrl;
     img.className = 'faq-img';
-    container.replaceChild(img, btn);
+    const hideLink = document.createElement('button');
+    hideLink.className = 'faq-img-hide-btn';
+    hideLink.textContent = '▲ Hide image';
+    hideLink.onclick = () => hideImage(container);
+    btn.style.display = 'none';
+    container.appendChild(img);
+    container.appendChild(hideLink);
   } catch(e) {
     btn.disabled = false;
     btn.textContent = originalLabel;
     errEl.textContent = "Couldn't load image — check your connection and try again.";
     errEl.classList.add('show');
   }
+}
+
+function hideImage(container) {
+  const btn = container.querySelector('.faq-img-reveal-btn');
+  const img = container.querySelector('.faq-img');
+  const hideLink = container.querySelector('.faq-img-hide-btn');
+  // Just hide, don't destroy — keeps the already-downloaded image ready
+  // for an instant re-reveal rather than fetching it all over again
+  if (img) img.style.display = 'none';
+  if (hideLink) hideLink.style.display = 'none';
+  if (btn) { btn.style.display = ''; btn.disabled = false; btn.textContent = btn.dataset.label || '📷 View image'; }
 }
 
 // Reveals every image in a set together on one tap. Each image is still
@@ -480,12 +507,31 @@ async function revealImage(btn) {
 async function revealImageSet(btn) {
   const container = btn.closest('.faq-imgset');
   const itemsEl = container.querySelector('.faq-imgset-items');
-  btn.disabled = true;
-  btn.textContent = 'Loading…';
-  itemsEl.style.display = 'flex';
   btn.style.display = 'none';
+  itemsEl.style.display = 'flex';
   const itemEls = itemsEl.querySelectorAll('.faq-imgset-item');
   await Promise.all(Array.from(itemEls).map(el => revealSetItem(el)));
+  const existingHideLink = container.querySelector('.faq-img-hide-btn');
+  if (existingHideLink) {
+    existingHideLink.style.display = '';
+  } else {
+    const hideLink = document.createElement('button');
+    hideLink.className = 'faq-img-hide-btn';
+    hideLink.textContent = '▲ Hide images';
+    hideLink.onclick = () => hideImageSet(container);
+    container.appendChild(hideLink);
+  }
+}
+
+function hideImageSet(container) {
+  const btn = container.querySelector('.faq-img-reveal-btn');
+  const itemsEl = container.querySelector('.faq-imgset-items');
+  const hideLink = container.querySelector('.faq-img-hide-btn');
+  // Just hide, don't destroy — the images already downloaded stay ready
+  // for an instant re-reveal (revealSetItem skips anything already loaded)
+  itemsEl.style.display = 'none';
+  if (hideLink) hideLink.style.display = 'none';
+  if (btn) { btn.style.display = ''; btn.disabled = false; btn.textContent = btn.dataset.label || '📷 View images'; }
 }
 
 async function revealSetItem(el) {
