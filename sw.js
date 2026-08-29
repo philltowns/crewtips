@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crewtips-v5';
+const CACHE_NAME = 'crewtips-v7';
 
 const STATIC_ASSETS = [
   './',
@@ -29,15 +29,37 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+const IMAGE_EXT_RE = /\.(jpe?g|png|webp|gif)(\?|$)/i;
+
 // Fetch strategy:
 // - HTML files: network first, fall back to cache (ensures app always checks for updates)
-// - Dropbox URLs: always network, never cache
+// - Dropbox data.json: always network, never cache (it changes)
+// - Dropbox images (FAQ attachments): cache first — these are immutable
+//   once uploaded (each has a unique filename), so once a pilot has
+//   tapped "View image" successfully once, it's cached on-device for
+//   instant, fully offline reuse afterward. Nothing downloads until the
+//   first tap, protecting the shared bandwidth cap.
 // - Everything else: cache first, fall back to network
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Never cache Dropbox API calls
   if (url.hostname.includes('dropbox')) {
+    if (IMAGE_EXT_RE.test(url.pathname)) {
+      event.respondWith(
+        caches.match(event.request).then(cached => {
+          return cached || fetch(event.request).then(response => {
+            if (response && response.status === 200) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+            }
+            return response;
+          });
+        })
+      );
+      return;
+    }
+
+    // Non-image Dropbox calls (data.json) — never cache
     event.respondWith(
       fetch(event.request).catch(() => {
         return new Response(JSON.stringify({ error: 'offline' }), {
@@ -48,8 +70,10 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // HTML files — network first so updates are always picked up
-  if (url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
+  // HTML files and manifest.json — network first so updates (including
+  // manifest changes like the orientation setting) are always picked up,
+  // rather than being served from a stale cached copy indefinitely
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname.endsWith('manifest.json')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
