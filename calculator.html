@@ -74,6 +74,8 @@
 
     /* ── Buttons ── */
     .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+    .calc-err { display: none; background: var(--red-light); border: 1px solid rgba(200,16,46,0.25); border-radius: var(--radius-sm); color: var(--red-dark); font-size: 13px; font-weight: 500; padding: 10px 14px; margin-top: 12px; }
+    .calc-err.show { display: block; }
     .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font); border: 1px solid var(--border); transition: all 0.15s; }
     .btn-primary { background: var(--red); color: #fff; border-color: var(--red); flex: 1; }
     .btn-primary:hover { background: var(--red-dark); }
@@ -243,6 +245,8 @@
     <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
     <button class="btn btn-primary" onclick="calculate()">Calculate rest periods</button>
   </div>
+
+  <div class="calc-err" id="calcErr"></div>
 
   <!-- Results -->
   <div class="results" id="results">
@@ -483,6 +487,7 @@ function resetAll() {
   document.getElementById('handoverToggle').checked = false;
   document.getElementById('handoverDuration').value = '10';
   document.getElementById('results').classList.remove('visible');
+  document.getElementById('calcErr').classList.remove('show');
   onHandoverToggle();
 }
 
@@ -503,9 +508,11 @@ function calculate() {
   const nameR2 = document.getElementById('nameR2').value || 'Relief 2';
 
   if (takeoff === null || landing === null) {
-    alert('Please enter valid takeoff and landing times.');
+    document.getElementById('calcErr').textContent = 'Please enter valid takeoff and landing times.';
+    document.getElementById('calcErr').classList.add('show');
     return;
   }
+  document.getElementById('calcErr').classList.remove('show');
 
   let flightMins = landing - takeoff;
   if (flightMins <= 0) flightMins += 1440;

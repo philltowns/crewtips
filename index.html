@@ -77,12 +77,6 @@
     .faq-link { display: block; font-size: 13px; color: var(--red-dark); text-decoration: none; padding: 6px 0; border-bottom: 1px solid var(--border); }
     .faq-link:last-child { border-bottom: none; }
     .faq-link:active { opacity: 0.7; }
-    .cat-fusion { background: #e6f1fb; color: #185FA5; }
-    .cat-roster { background: #eaf3de; color: #3B6D11; }
-    .cat-pay { background: #faeeda; color: #854F0B; }
-    .cat-medical { background: #FAECE7; color: #993C1D; }
-    .cat-it { background: #eeedfe; color: #3C3489; }
-    .cat-general { background: #f0ede5; color: #5F5E5A; }
     .tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
     .tip-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
     .tip-body { flex: 1; min-width: 0; }
@@ -174,7 +168,7 @@
           <div class="tool-icon">😴</div>
           <div class="tool-body">
             <div class="tool-name">Crew Rest Calculator</div>
-            <div class="tool-desc">Plan augmented crew rest periods for 3 or 4-pilot operations</div>
+            <div class="tool-desc">Plan crew rest periods for 3 or 4-pilot operations</div>
           </div>
           <div class="tool-arrow">›</div>
         </a>
@@ -309,10 +303,24 @@ function matchFaq(f, t) {
 // ─────────────────────────────────────────────
 function render() { renderFaqs(); renderTips(); }
 
-function catIconBg(cat) {
-  const m = { fusion:'#e6f1fb', roster:'#eaf3de', pay:'#faeeda', medical:'#FAECE7', it:'#eeedfe', general:'#f0ede5' };
-  return m[cat] || '#f0ede5';
+function categoryColorInfo(cat) {
+  const known = {
+    fusion:  { bg: '#e6f1fb', text: '#185FA5' },
+    roster:  { bg: '#eaf3de', text: '#3B6D11' },
+    pay:     { bg: '#faeeda', text: '#854F0B' },
+    medical: { bg: '#FAECE7', text: '#993C1D' },
+    it:      { bg: '#eeedfe', text: '#3C3489' },
+    general: { bg: '#f0ede5', text: '#5F5E5A' }
+  };
+  if (known[cat]) return known[cat];
+  // Custom category — deterministic hash to a hue so it gets a consistent,
+  // distinct colour every time rather than falling back to plain/grey
+  let hash = 0;
+  for (let i = 0; i < cat.length; i++) hash = (hash * 31 + cat.charCodeAt(i)) >>> 0;
+  const hue = hash % 360;
+  return { bg: 'hsl(' + hue + ',65%,92%)', text: 'hsl(' + hue + ',55%,32%)' };
 }
+function catIconBg(cat) { return categoryColorInfo(cat).bg; }
 
 function renderFaqs() {
   const list = searchTerm ? appData.faqs.filter(f => matchFaq(f, searchTerm)) : appData.faqs;
@@ -429,9 +437,10 @@ function faqCard(f) {
         + '<div class="see-also-arrow">›</div></div></div>';
     }
   }
+  const catColor = categoryColorInfo(f.cat);
   return '<div class="faq-card"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
     + '<span class="faq-q">' + hl(f.q, searchTerm) + '</span>'
-    + '<div class="faq-right"><span class="faq-cat cat-' + f.cat + '">' + escHtml(catName(f.cat)) + '</span>'
+    + '<div class="faq-right"><span class="faq-cat" style="background:' + catColor.bg + ';color:' + catColor.text + '">' + escHtml(catName(f.cat)) + '</span>'
     + '<span class="faq-chevron" id="chev-' + f.id + '">▾</span></div></div>'
     + '<div class="faq-body" id="body-' + f.id + '">' + answerHtml + pathHtml + linksHtml + seeAlsoHtml + '</div></div>';
 }
@@ -584,12 +593,13 @@ function renderTips() {
     + list.map(t => {
       const hasArticle = t.body && t.body.trim();
       const clickAttr = hasArticle ? ' onclick="toggleTipArticle(' + t.id + ')" style="cursor:pointer"' : '';
+      const catColor = categoryColorInfo(t.cat);
       return '<div class="tip-card" id="tip-' + t.id + '">'
-        + '<div class="tip-icon" style="background:' + catIconBg(t.cat) + '">' + escHtml(t.icon||'💡') + '</div>'
+        + '<div class="tip-icon" style="background:' + catColor.bg + '">' + escHtml(t.icon||'💡') + '</div>'
         + '<div class="tip-body"' + clickAttr + '><div class="tip-title">' + escHtml(t.title) + '</div>'
         + '<div class="tip-text">' + escHtml(t.text) + '</div>'
         + (hasArticle ? '<div class="tip-readmore" id="tip-readmore-' + t.id + '">Read more <span class="tip-readmore-chevron">▾</span></div>' : '')
-        + '<span class="tip-badge cat-' + t.cat + '">' + escHtml(catName(t.cat)) + '</span>'
+        + '<span class="tip-badge" style="background:' + catColor.bg + ';color:' + catColor.text + '">' + escHtml(catName(t.cat)) + '</span>'
         + (hasArticle ? '<div class="tip-article" id="tip-article-' + t.id + '">' + renderRichText(t.body) + '</div>' : '')
         + '</div></div>';
     }).join('');
