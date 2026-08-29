@@ -5,7 +5,7 @@
   "start_url": "/crewtips/",
   "scope": "/crewtips/",
   "display": "standalone",
-  "background_color": "#0a1628",
+  "background_color": "#c8102e",
   "theme_color": "#c8102e",
   "icons": [
     {
