@@ -53,7 +53,10 @@
     .sync-bar.error { background: #fce4ec; color: #c62828; }
     .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px calc(var(--safe-bottom) + 16px); }
     .section-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; padding: 0 4px; }
-    .faq-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+    .faq-card { border-radius: var(--radius); margin-bottom: 8px; transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease; }
+    .faq-card.dimmed { opacity: 0.45; }
+    .faq-card.raised { box-shadow: 0 8px 20px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .faq-card-inner { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     @keyframes faqOpenPulse {
       0% { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--red) 22%, transparent); }
       100% { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--red) 0%, transparent); }
@@ -197,6 +200,10 @@ const DBX_CACHE_KEY  = 'crewtips_dbx_cache';
 let appData      = null;
 let currentTab   = 'faqs';
 let searchTerm   = '';
+
+// Dim other FAQs + raise/shadow the open one while it's expanded.
+// Set to false to switch this off entirely without touching any other code.
+const FAQ_FOCUS_MODE = true;
 
 // ─────────────────────────────────────────────
 // INIT
@@ -443,11 +450,11 @@ function faqCard(f) {
     }
   }
   const catColor = categoryColorInfo(f.cat);
-  return '<div class="faq-card" id="faqc-' + f.id + '"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
+  return '<div class="faq-card" id="faqc-' + f.id + '"><div class="faq-card-inner"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
     + '<span class="faq-q">' + hl(f.q, searchTerm) + '</span>'
     + '<div class="faq-right"><span class="faq-cat" style="background:' + catColor.bg + ';color:' + catColor.text + '">' + escHtml(catName(f.cat)) + '</span>'
     + '<span class="faq-chevron" id="chev-' + f.id + '">▾</span></div></div>'
-    + '<div class="faq-body" id="body-' + f.id + '">' + answerHtml + pathHtml + linksHtml + seeAlsoHtml + '</div></div>';
+    + '<div class="faq-body" id="body-' + f.id + '">' + answerHtml + pathHtml + linksHtml + seeAlsoHtml + '</div></div></div>';
 }
 
 function toggleFaq(id) {
@@ -457,22 +464,42 @@ function toggleFaq(id) {
   const isOpen = body.classList.contains('open');
   document.querySelectorAll('.faq-body.open').forEach(b => b.classList.remove('open'));
   document.querySelectorAll('.faq-chevron.open').forEach(c => c.classList.remove('open'));
-  if (!isOpen) {
-    body.classList.add('open');
-    chev.classList.add('open');
-    if (card) {
-      // Snap the top of the card to the top of the scrollable content area —
-      // smooth, not pinned, so the pilot can still scroll freely afterward.
-      // Near the end of the list there may not be enough content below to
-      // reach the top; the browser scrolls as far as it can and stops there.
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Brief low-opacity glow to acknowledge the FAQ has opened — colour is
-      // derived from --red via color-mix() so it stays in sync automatically
-      // if the brand colour is ever changed. Single pulse, open only.
-      card.classList.remove('faq-card-flash');
-      void card.offsetWidth; // force reflow so the animation retriggers on repeat opens
-      card.classList.add('faq-card-flash');
+
+  if (isOpen) {
+    // Closing this FAQ — nothing left open, so clear any focus styling
+    if (FAQ_FOCUS_MODE) {
+      document.querySelectorAll('.faq-card').forEach(c => { c.classList.remove('dimmed'); c.classList.remove('raised'); });
     }
+    return;
+  }
+
+  body.classList.add('open');
+  chev.classList.add('open');
+
+  // Dim every other FAQ and raise this one, for as long as it stays open —
+  // set FAQ_FOCUS_MODE = false above to switch this off entirely.
+  if (FAQ_FOCUS_MODE && card) {
+    document.querySelectorAll('.faq-card').forEach(c => {
+      if (c === card) { c.classList.remove('dimmed'); c.classList.add('raised'); }
+      else { c.classList.add('dimmed'); c.classList.remove('raised'); }
+    });
+  }
+
+  if (card) {
+    // Snap the top of the card to the top of the scrollable content area —
+    // smooth, not pinned, so the pilot can still scroll freely afterward.
+    // Near the end of the list there may not be enough content below to
+    // reach the top; the browser scrolls as far as it can and stops there.
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  const inner = card ? card.querySelector('.faq-card-inner') : null;
+  if (inner) {
+    // Brief low-opacity glow to acknowledge the FAQ has opened — colour is
+    // derived from --red via color-mix() so it stays in sync automatically
+    // if the brand colour is ever changed. Single pulse, open only.
+    inner.classList.remove('faq-card-flash');
+    void inner.offsetWidth; // force reflow so the animation retriggers on repeat opens
+    inner.classList.add('faq-card-flash');
   }
 }
 
