@@ -54,7 +54,7 @@
     .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px calc(var(--safe-bottom) + 16px); }
     .section-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; padding: 0 4px; }
     .faq-card { border-radius: var(--radius); margin-bottom: 8px; transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease; }
-    .faq-card.dimmed { opacity: 0.45; }
+    .faq-card.dimmed { opacity: 0.3; }
     .faq-card.raised { box-shadow: 0 8px 20px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.08); transform: translateY(-1px); }
     .faq-card-inner { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     @keyframes faqOpenPulse {
@@ -623,8 +623,27 @@ function retrySetItem(retryBtn) {
   revealSetItem(el);
 }
 
+// Tracks a pending "return to this FAQ" state after a [tip:...] jump —
+// set when jumpToTip pushes a history entry, cleared either when the
+// pilot presses back (consuming it, see popstate handler below) or when
+// they manually navigate away via a tab button (see switchTab), which
+// invalidates it and silently pops the now-stale entry so the *next*
+// back press behaves like a normal exit rather than needing two presses.
+let pendingTipReturn = null;
+
 function jumpToTip(id) {
-  switchTab('tips');
+  // Only worth a history entry if this jump is actually taking the pilot
+  // away from an open FAQ on the FAQs tab — that's the case the back
+  // button previously broke. Jumping between tips while already on the
+  // Tips tab isn't a tab change, so nothing to wire up there.
+  if (currentTab === 'faqs') {
+    const openBody = document.querySelector('.faq-body.open');
+    if (openBody) {
+      pendingTipReturn = { faqId: openBody.id.replace('body-', '') };
+      history.pushState({ crewtipsTipJump: true }, '');
+    }
+  }
+  switchTab('tips', false);
   setTimeout(() => {
     const el = document.getElementById('tip-' + id);
     if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('tip-highlight'); setTimeout(() => el.classList.remove('tip-highlight'), 2000); }
@@ -632,6 +651,18 @@ function jumpToTip(id) {
     if (article && !article.classList.contains('open')) toggleTipArticle(id);
   }, 120);
 }
+
+window.addEventListener('popstate', () => {
+  if (pendingTipReturn) {
+    const faqId = pendingTipReturn.faqId;
+    pendingTipReturn = null;
+    switchTab('faqs', false);
+    const card = document.getElementById('faqc-' + faqId);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // No pending return — nothing to restore, so let this back press fall
+  // through to its normal effect (exiting the app).
+});
 
 function renderTips() {
   const list = appData.tips;
@@ -663,7 +694,15 @@ function toggleTipArticle(id) {
   readmore.classList.toggle('open', !isOpen);
 }
 
-function switchTab(tab) {
+function switchTab(tab, isManual = true) {
+  if (isManual && pendingTipReturn) {
+    // Pilot deliberately navigated away rather than pressing back — the
+    // "return to FAQ" state no longer applies. Clear it and silently pop
+    // the now-stale pushed entry so the browser's back stack is left
+    // clean, rather than requiring a second back press later to exit.
+    pendingTipReturn = null;
+    history.back();
+  }
   currentTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === 'tab-' + tab));
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
