@@ -54,6 +54,11 @@
     .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px calc(var(--safe-bottom) + 16px); }
     .section-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; padding: 0 4px; }
     .faq-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+    @keyframes faqOpenPulse {
+      0% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 22%, transparent); }
+      100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 0%, transparent); }
+    }
+    .faq-card-flash { animation: faqOpenPulse 0.5s ease-out; }
     .faq-header { padding: 13px 14px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .faq-header:active { background: var(--surface); }
     .faq-q { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.45; }
@@ -438,7 +443,7 @@ function faqCard(f) {
     }
   }
   const catColor = categoryColorInfo(f.cat);
-  return '<div class="faq-card"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
+  return '<div class="faq-card" id="faqc-' + f.id + '"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
     + '<span class="faq-q">' + hl(f.q, searchTerm) + '</span>'
     + '<div class="faq-right"><span class="faq-cat" style="background:' + catColor.bg + ';color:' + catColor.text + '">' + escHtml(catName(f.cat)) + '</span>'
     + '<span class="faq-chevron" id="chev-' + f.id + '">▾</span></div></div>'
@@ -448,10 +453,27 @@ function faqCard(f) {
 function toggleFaq(id) {
   const body = document.getElementById('body-' + id);
   const chev = document.getElementById('chev-' + id);
+  const card = document.getElementById('faqc-' + id);
   const isOpen = body.classList.contains('open');
   document.querySelectorAll('.faq-body.open').forEach(b => b.classList.remove('open'));
   document.querySelectorAll('.faq-chevron.open').forEach(c => c.classList.remove('open'));
-  if (!isOpen) { body.classList.add('open'); chev.classList.add('open'); }
+  if (!isOpen) {
+    body.classList.add('open');
+    chev.classList.add('open');
+    if (card) {
+      // Snap the top of the card to the top of the scrollable content area —
+      // smooth, not pinned, so the pilot can still scroll freely afterward.
+      // Near the end of the list there may not be enough content below to
+      // reach the top; the browser scrolls as far as it can and stops there.
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Brief low-opacity glow to acknowledge the FAQ has opened — colour is
+      // derived from --red via color-mix() so it stays in sync automatically
+      // if the brand colour is ever changed. Single pulse, open only.
+      card.classList.remove('faq-card-flash');
+      void card.offsetWidth; // force reflow so the animation retriggers on repeat opens
+      card.classList.add('faq-card-flash');
+    }
+  }
 }
 
 // Nothing downloads until this is tapped — the actual fetch is what the
