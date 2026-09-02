@@ -135,8 +135,7 @@
     .tool-body { flex: 1; }
     .tool-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .tool-desc { font-size: 13px; color: var(--text2); line-height: 1.4; }
-    .tool-arrow { font-size: 22px; color: var(--text3); }
-    .section-label-mt { margin-top: 18px; }
+    .tool-arrow { font-size: 22px; color: var(--text3); transition: transform 0.2s ease; }
     .qlink-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
     .qlink-card:active { background: var(--surface); }
     .qlink-title { font-size: 14px; font-weight: 700; color: var(--text); }
@@ -187,9 +186,18 @@
           <div class="tool-arrow">›</div>
         </a>
       </div>
-      <div id="quickLinksSection">
-        <div class="section-label section-label-mt">Quick links</div>
-        <div class="tools-grid" id="quickLinksGrid"></div>
+      <div id="quickLinksWrapper" style="display:none">
+        <div class="tools-grid" style="margin-top:10px">
+          <div class="tool-card" onclick="toggleQuickLinks()" style="cursor:pointer">
+            <div class="tool-icon">🔗</div>
+            <div class="tool-body">
+              <div class="tool-name">Quick Links</div>
+              <div class="tool-desc">Useful links and resources</div>
+            </div>
+            <div class="tool-arrow" id="quickLinksArrow">›</div>
+          </div>
+        </div>
+        <div class="tools-grid" id="quickLinksGrid" style="display:none;margin-top:10px"></div>
       </div>
     </div>
   </div>
@@ -326,18 +334,27 @@ function matchFaq(f, t) {
 function render() { renderFaqs(); renderTips(); renderQuickLinks(); }
 
 function renderQuickLinks() {
-  const section = document.getElementById('quickLinksSection');
+  const wrapper = document.getElementById('quickLinksWrapper');
   const grid = document.getElementById('quickLinksGrid');
-  if (!section || !grid) return;
+  if (!wrapper || !grid) return;
   const links = (appData && appData.quickLinks) || [];
-  if (!links.length) { section.style.display = 'none'; return; }
-  section.style.display = '';
+  if (!links.length) { wrapper.style.display = 'none'; return; }
+  wrapper.style.display = '';
   grid.innerHTML = links.map(l => {
     const desc = l.description ? '<div class="qlink-desc">' + escHtml(l.description) + '</div>' : '';
     return '<a class="qlink-card" href="' + escHtml(l.url) + '" target="_blank" rel="noopener">'
       + '<div><div class="qlink-title">' + escHtml(l.title) + '</div>' + desc + '</div>'
       + '<div class="qlink-arrow">›</div></a>';
   }).join('');
+}
+
+function toggleQuickLinks() {
+  const grid = document.getElementById('quickLinksGrid');
+  const arrow = document.getElementById('quickLinksArrow');
+  if (!grid) return;
+  const isOpen = grid.style.display !== 'none';
+  grid.style.display = isOpen ? 'none' : '';
+  if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
 }
 
 function categoryColorInfo(cat) {
