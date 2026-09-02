@@ -342,7 +342,7 @@ function renderQuickLinks() {
   wrapper.style.display = '';
   grid.innerHTML = links.map(l => {
     const desc = l.description ? '<div class="qlink-desc">' + escHtml(l.description) + '</div>' : '';
-    return '<a class="qlink-card" href="' + escHtml(l.url) + '" target="_blank" rel="noopener">'
+    return '<a class="qlink-card" href="' + escHtml(l.url) + '" rel="noopener">'
       + '<div><div class="qlink-title">' + escHtml(l.title) + '</div>' + desc + '</div>'
       + '<div class="qlink-arrow">›</div></a>';
   }).join('');
