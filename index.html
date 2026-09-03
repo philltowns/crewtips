@@ -342,10 +342,33 @@ function renderQuickLinks() {
   wrapper.style.display = '';
   grid.innerHTML = links.map(l => {
     const desc = l.description ? '<div class="qlink-desc">' + escHtml(l.description) + '</div>' : '';
-    return '<a class="qlink-card" href="' + escHtml(l.url) + '" rel="noopener">'
+    return '<a class="qlink-card" href="' + escHtml(l.url) + '" rel="noopener" data-url="' + escHtml(l.url) + '" onclick="return openQuickLink(this)">'
       + '<div><div class="qlink-title">' + escHtml(l.title) + '</div>' + desc + '</div>'
       + '<div class="qlink-arrow">›</div></a>';
   }).join('');
+}
+
+// On Android, a normal tap on a link from inside this installed PWA opens
+// it in an embedded in-app view rather than the device's actual browser —
+// the same problem the long-press "Open in [Browser]" menu already works
+// around. This does the same handoff Android already offers there, but on
+// a plain tap: an intent: URL explicitly asks the OS to hand the link to
+// whatever app is registered to open it (normally the default browser),
+// the same mechanism a link tapped from outside a WebView would use.
+// No equivalent exists on iOS, so other platforms just follow the normal
+// href as usual.
+function openQuickLink(el) {
+  const url = el.dataset.url;
+  if (!/Android/i.test(navigator.userAgent)) return true;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return true;
+    const rest = u.href.slice(u.protocol.length + 2); // strip 'https://' / 'http://'
+    window.location.href = 'intent://' + rest + '#Intent;scheme=' + u.protocol.slice(0, -1) + ';end';
+    return false;
+  } catch (e) {
+    return true; // malformed URL — fall back to the normal href
+  }
 }
 
 function toggleQuickLinks() {
