@@ -105,18 +105,39 @@ function renderLinks() {
   }
   grid.innerHTML = links.map(l => {
     const desc = l.description ? '<div class="qlink-desc">' + escHtml(l.description) + '</div>' : '';
-    return '<a class="qlink-card" href="' + escHtml(l.url) + '" rel="noopener" data-url="' + escHtml(l.url) + '" onclick="return onLinkTap(this, event)">'
+    return '<a class="qlink-card" href="' + escHtml(l.url) + '" rel="noopener" data-url="' + escHtml(l.url) + '" data-external="' + (l.openExternal ? '1' : '0') + '" onclick="return onLinkTap(this, event)">'
       + '<div><div class="qlink-title">' + escHtml(l.title) + '</div>' + desc + '</div>'
       + '<div class="qlink-arrow">›</div></a>';
   }).join('');
 }
 
-// The very first time a pilot taps any link on this page, show a one-off
-// modal explaining it'll open in-app and how to switch to a real browser
-// — then remember it's been seen so it never appears again. Every link
-// after that (including this same first tap, once dismissed) behaves as
-// a completely normal link.
+// The very first time a pilot taps any *ordinary* link on this page, show
+// a one-off modal explaining it'll open in-app and how to switch to a real
+// browser — then remember it's been seen so it never appears again.
+//
+// Links flagged "open externally" (e.g. Fusion, whose SSO login breaks if
+// the browser context changes partway through — see admin app for detail)
+// skip the modal entirely and go straight to a real external browser via
+// Android's intent: scheme, since the whole point is that they must never
+// render inside the in-app view at all, not even briefly. No equivalent
+// exists on iOS, so those just follow the link normally there.
 function onLinkTap(el, event) {
+  const isExternal = el.dataset.external === '1';
+
+  if (isExternal && /Android/i.test(navigator.userAgent)) {
+    try {
+      const u = new URL(el.dataset.url);
+      if (u.protocol === 'http:' || u.protocol === 'https:') {
+        event.preventDefault();
+        const rest = u.href.slice(u.protocol.length + 2); // strip 'https://' / 'http://'
+        window.location.href = 'intent://' + rest + '#Intent;scheme=' + u.protocol.slice(0, -1) + ';end';
+        return false;
+      }
+    } catch (e) { /* malformed URL — fall through to normal link behaviour */ }
+  }
+
+  if (isExternal) return true; // non-Android: just follow the link normally, no modal
+
   if (localStorage.getItem(TIP_SEEN_KEY)) return true;
   event.preventDefault();
   pendingUrl = el.dataset.url;
