@@ -136,11 +136,6 @@
     .tool-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .tool-desc { font-size: 13px; color: var(--text2); line-height: 1.4; }
     .tool-arrow { font-size: 22px; color: var(--text3); transition: transform 0.2s ease; }
-    .qlink-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
-    .qlink-card:active { background: var(--surface); }
-    .qlink-title { font-size: 14px; font-weight: 700; color: var(--text); }
-    .qlink-desc { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
-    .qlink-arrow { font-size: 20px; color: var(--text3); flex-shrink: 0; }
     @keyframes tipPulse { 0% { box-shadow: 0 0 0 0 rgba(200,16,46,0.4); } 70% { box-shadow: 0 0 0 8px rgba(200,16,46,0); } 100% { box-shadow: 0 0 0 0 rgba(200,16,46,0); } }
     .tip-highlight { animation: tipPulse 0.8s ease 2; border-color: var(--red) !important; }
   </style>
@@ -185,19 +180,14 @@
           </div>
           <div class="tool-arrow">›</div>
         </a>
-      </div>
-      <div id="quickLinksWrapper" style="display:none">
-        <div class="tools-grid" style="margin-top:10px">
-          <div class="tool-card" onclick="toggleQuickLinks()" style="cursor:pointer">
-            <div class="tool-icon">🔗</div>
-            <div class="tool-body">
-              <div class="tool-name">Quick Links</div>
-              <div class="tool-desc">Useful links and resources</div>
-            </div>
-            <div class="tool-arrow" id="quickLinksArrow">›</div>
+        <a href="links.html" class="tool-card" id="quickLinksCard" style="display:none">
+          <div class="tool-icon">🔗</div>
+          <div class="tool-body">
+            <div class="tool-name">Quick Links</div>
+            <div class="tool-desc">Useful links and resources</div>
           </div>
-        </div>
-        <div class="tools-grid" id="quickLinksGrid" style="display:none;margin-top:10px"></div>
+          <div class="tool-arrow">›</div>
+        </a>
       </div>
     </div>
   </div>
@@ -333,51 +323,14 @@ function matchFaq(f, t) {
 // ─────────────────────────────────────────────
 function render() { renderFaqs(); renderTips(); renderQuickLinks(); }
 
+// Quick Links now live on their own page (links.html), same pattern as
+// the Crew Rest Calculator — this just shows/hides the entry card in the
+// Tools tab depending on whether any links exist.
 function renderQuickLinks() {
-  const wrapper = document.getElementById('quickLinksWrapper');
-  const grid = document.getElementById('quickLinksGrid');
-  if (!wrapper || !grid) return;
+  const card = document.getElementById('quickLinksCard');
+  if (!card) return;
   const links = (appData && appData.quickLinks) || [];
-  if (!links.length) { wrapper.style.display = 'none'; return; }
-  wrapper.style.display = '';
-  grid.innerHTML = links.map(l => {
-    const desc = l.description ? '<div class="qlink-desc">' + escHtml(l.description) + '</div>' : '';
-    return '<a class="qlink-card" href="' + escHtml(l.url) + '" rel="noopener" data-url="' + escHtml(l.url) + '" onclick="return openQuickLink(this)">'
-      + '<div><div class="qlink-title">' + escHtml(l.title) + '</div>' + desc + '</div>'
-      + '<div class="qlink-arrow">›</div></a>';
-  }).join('');
-}
-
-// On Android, a normal tap on a link from inside this installed PWA opens
-// it in an embedded in-app view rather than the device's actual browser —
-// the same problem the long-press "Open in [Browser]" menu already works
-// around. This does the same handoff Android already offers there, but on
-// a plain tap: an intent: URL explicitly asks the OS to hand the link to
-// whatever app is registered to open it (normally the default browser),
-// the same mechanism a link tapped from outside a WebView would use.
-// No equivalent exists on iOS, so other platforms just follow the normal
-// href as usual.
-function openQuickLink(el) {
-  const url = el.dataset.url;
-  if (!/Android/i.test(navigator.userAgent)) return true;
-  try {
-    const u = new URL(url);
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return true;
-    const rest = u.href.slice(u.protocol.length + 2); // strip 'https://' / 'http://'
-    window.location.href = 'intent://' + rest + '#Intent;scheme=' + u.protocol.slice(0, -1) + ';end';
-    return false;
-  } catch (e) {
-    return true; // malformed URL — fall back to the normal href
-  }
-}
-
-function toggleQuickLinks() {
-  const grid = document.getElementById('quickLinksGrid');
-  const arrow = document.getElementById('quickLinksArrow');
-  if (!grid) return;
-  const isOpen = grid.style.display !== 'none';
-  grid.style.display = isOpen ? 'none' : '';
-  if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
+  card.style.display = links.length ? '' : 'none';
 }
 
 function categoryColorInfo(cat) {

@@ -1,9 +1,10 @@
-const CACHE_NAME = 'crewtips-v7';
+const CACHE_NAME = 'crewtips-v8';
 
 const STATIC_ASSETS = [
   './',
   './index.html',
   './calculator.html',
+  './links.html',
   './manifest.json'
 ];
 
