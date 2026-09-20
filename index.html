@@ -25,7 +25,8 @@
       --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
     html, body { height: 100%; font-family: var(--font); background: var(--surface); color: var(--text); -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
-    #app { display: flex; flex-direction: column; height: 100%; max-width: 680px; margin: 0 auto; }
+    #app { display: flex; flex-direction: column; height: 100%; }
+    .header-top, .search-wrap, .tabs, .sync-bar, .content { max-width: 680px; width: 100%; margin-left: auto; margin-right: auto; }
     .header { background: var(--red); padding: calc(var(--safe-top) + 14px) 16px 0; flex-shrink: 0; position: relative; overflow: hidden; }
     .header::after { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.06); border-radius: 50%; pointer-events: none; }
     .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
