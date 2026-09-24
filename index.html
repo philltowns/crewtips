@@ -45,8 +45,6 @@
     .tabs { display: flex; border-top: 1px solid rgba(255,255,255,0.15); }
     .tab-btn { flex: 1; padding: 10px 4px; background: none; border: none; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500; font-family: var(--font); cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .tab-btn.active { color: #fff; border-bottom-color: #fff; }
-    .tab-count { background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
-    .tab-btn.active .tab-count { background: rgba(255,255,255,0.35); }
     .sync-bar { font-size: 11px; font-weight: 500; text-align: center; padding: 4px; flex-shrink: 0; display: none; }
     .sync-bar.visible { display: block; }
     .sync-bar.ok { background: #e8f5e9; color: #2e7d32; }
@@ -161,8 +159,8 @@
       </div>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" id="tab-faqs" onclick="switchTab('faqs')">FAQs <span class="tab-count" id="count-faqs">0</span></button>
-      <button class="tab-btn" id="tab-tips" onclick="switchTab('tips')">Top tips <span class="tab-count" id="count-tips">0</span></button>
+      <button class="tab-btn active" id="tab-faqs" onclick="switchTab('faqs')">FAQs</button>
+      <button class="tab-btn" id="tab-tips" onclick="switchTab('tips')">Top tips</button>
       <button class="tab-btn" id="tab-tools" onclick="switchTab('tools')">🛠 Tools</button>
     </div>
   </header>
@@ -355,7 +353,6 @@ function catIconBg(cat) { return categoryColorInfo(cat).bg; }
 
 function renderFaqs() {
   const list = searchTerm ? appData.faqs.filter(f => matchFaq(f, searchTerm)) : appData.faqs;
-  document.getElementById('count-faqs').textContent = list.length;
   const pane = document.getElementById('pane-faqs');
   if (!list.length) {
     pane.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No FAQs match <strong>"' + escHtml(searchTerm) + '"</strong></p></div>';
@@ -685,7 +682,6 @@ window.addEventListener('popstate', () => {
 
 function renderTips() {
   const list = appData.tips;
-  document.getElementById('count-tips').textContent = list.length;
   const pane = document.getElementById('pane-tips');
   if (!list.length) { pane.innerHTML = '<div class="empty"><div class="empty-icon">💡</div><p>No tips yet.</p></div>'; return; }
   pane.innerHTML = '<div class="section-label">Top tips from the fleet</div>'
