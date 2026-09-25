@@ -74,8 +74,13 @@
 
     /* ── Buttons ── */
     .btn-row { display: flex; gap: 10px; margin-top: 16px; }
-    .calc-err { display: none; background: var(--red-light); border: 1px solid rgba(200,16,46,0.25); border-radius: var(--radius-sm); color: var(--red-dark); font-size: 13px; font-weight: 500; padding: 10px 14px; margin-top: 12px; }
-    .calc-err.show { display: block; }
+    .calc-err-overlay { position: fixed; inset: 0; background: rgba(10,22,40,0.55); display: none; align-items: center; justify-content: center; z-index: 999; padding: 24px; }
+    .calc-err-overlay.show { display: flex; }
+    .calc-err-modal { background: var(--card); border-radius: var(--radius); padding: 20px; max-width: 340px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.15); }
+    .calc-err-modal-title { font-size: 16px; font-weight: 700; color: var(--red-dark); margin-bottom: 8px; }
+    .calc-err-modal-body { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 16px; }
+    .calc-err-modal-btn { display: block; width: 100%; background: var(--red); color: #fff; border: none; font-size: 15px; font-weight: 600; padding: 12px 16px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font); }
+    .calc-err-modal-btn:active { background: var(--red-dark); }
     .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font); border: 1px solid var(--border); transition: all 0.15s; }
     .btn-primary { background: var(--red); color: #fff; border-color: var(--red); flex: 1; }
     .btn-primary:hover { background: var(--red-dark); }
@@ -246,7 +251,13 @@
     <button class="btn btn-primary" onclick="calculate()">Calculate rest periods</button>
   </div>
 
-  <div class="calc-err" id="calcErr"></div>
+  <div class="calc-err-overlay" id="calcErrOverlay">
+    <div class="calc-err-modal">
+      <div class="calc-err-modal-title">Missing information</div>
+      <div class="calc-err-modal-body" id="calcErrBody"></div>
+      <button class="calc-err-modal-btn" onclick="hideCalcError()">OK</button>
+    </div>
+  </div>
 
   <!-- Results -->
   <div class="results" id="results">
@@ -487,13 +498,22 @@ function resetAll() {
   document.getElementById('handoverToggle').checked = false;
   document.getElementById('handoverDuration').value = '10';
   document.getElementById('results').classList.remove('visible');
-  document.getElementById('calcErr').classList.remove('show');
+  hideCalcError();
   onHandoverToggle();
 }
 
 // ─────────────────────────────────────────────
 // CALCULATE
 // ─────────────────────────────────────────────
+function showCalcError(message) {
+  document.getElementById('calcErrBody').textContent = message;
+  document.getElementById('calcErrOverlay').classList.add('show');
+}
+
+function hideCalcError() {
+  document.getElementById('calcErrOverlay').classList.remove('show');
+}
+
 function calculate() {
   // Gather inputs
   const takeoff = parseTime(document.getElementById('takeoffTime').value);
@@ -508,11 +528,9 @@ function calculate() {
   const nameR2 = document.getElementById('nameR2').value || 'Relief 2';
 
   if (takeoff === null || landing === null) {
-    document.getElementById('calcErr').textContent = 'Please enter valid takeoff and landing times.';
-    document.getElementById('calcErr').classList.add('show');
+    showCalcError('Please enter valid takeoff and landing times.');
     return;
   }
-  document.getElementById('calcErr').classList.remove('show');
 
   let flightMins = landing - takeoff;
   if (flightMins <= 0) flightMins += 1440;
