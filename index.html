@@ -84,25 +84,10 @@
     .faq-link { display: block; font-size: 13px; color: var(--red-dark); text-decoration: none; padding: 6px 0; border-bottom: 1px solid var(--border); }
     .faq-link:last-child { border-bottom: none; }
     .faq-link:active { opacity: 0.7; }
-    .tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
-    .tip-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-    .tip-body { flex: 1; min-width: 0; }
-    .tip-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.35; }
-    .tip-text { font-size: 13px; color: var(--text2); line-height: 1.65; }
-    .tip-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 7px; letter-spacing: 0.2px; }
-    .tip-readmore { font-size: 12px; font-weight: 600; color: var(--red-dark); margin-top: 6px; display: flex; align-items: center; gap: 3px; }
-    .tip-readmore-chevron { display: inline-block; transition: transform 0.2s; font-size: 10px; }
-    .tip-readmore.open .tip-readmore-chevron { transform: rotate(180deg); }
-    .tip-article { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.6; }
-    .tip-article.open { display: block; }
-    .tip-article p { margin-top: 8px; }
-    .tip-article p:first-child { margin-top: 0; }
     .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
     .empty-icon { font-size: 36px; margin-bottom: 10px; }
     .empty p { font-size: 14px; line-height: 1.6; }
     mark { background: #fff176; color: inherit; border-radius: 2px; padding: 0 1px; }
-    .see-also-box { margin-top: 12px; border: 1.5px solid var(--red-light); border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; background: #fff9f9; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
-    .see-also-box:active { background: var(--red-light); }
     .see-also-label { font-size: 10px; font-weight: 600; color: var(--red); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px; }
     .see-also-inner { display: flex; align-items: center; gap: 10px; }
     .see-also-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
@@ -110,7 +95,6 @@
     .see-also-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
     .see-also-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
     .see-also-arrow { font-size: 20px; color: var(--red); font-weight: 300; flex-shrink: 0; }
-    .inline-tip-link { display: inline; background: none; border: none; color: var(--red); font-size: inherit; font-family: var(--font); font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
     .faq-img-block { margin: 10px 0; }
     .faq-img-reveal-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font); }
     .faq-img-reveal-btn:disabled { color: var(--text3); }
@@ -135,8 +119,62 @@
     .tool-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .tool-desc { font-size: 13px; color: var(--text2); line-height: 1.4; }
     .tool-arrow { font-size: 22px; color: var(--text3); transition: transform 0.2s ease; }
-    @keyframes tipPulse { 0% { box-shadow: 0 0 0 0 rgba(200,16,46,0.4); } 70% { box-shadow: 0 0 0 8px rgba(200,16,46,0); } 100% { box-shadow: 0 0 0 0 rgba(200,16,46,0); } }
-    .tip-highlight { animation: tipPulse 0.8s ease 2; border-color: var(--red) !important; }
+
+    /* ---- See also (FAQ -> guides) ---- */
+    .see-also-box { margin-top: 12px; border: 1.5px solid var(--red-light); border-radius: var(--radius-sm); padding: 10px 12px 4px; background: #fff9f9; }
+    .see-also-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--red-light); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .see-also-label + .see-also-row { border-top: none; padding-top: 2px; }
+    .see-also-row:active { opacity: 0.7; }
+    .see-also-type { color: var(--red-dark); font-weight: 700; }
+
+    /* ---- Guides tab ---- */
+    .guide-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .guide-card:active { background: var(--surface); }
+    .guide-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; align-self: flex-start; }
+    .guide-card-body { flex: 1; min-width: 0; }
+    .guide-card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.35; }
+    .guide-card-text { font-size: 13px; color: var(--text2); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .guide-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+    .guide-chevron { font-size: 22px; color: var(--text3); flex-shrink: 0; }
+    .type-badge, .guide-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; letter-spacing: 0.2px; }
+    .type-badge.type-tip { background: #fff1cc; color: #7a4e00; }
+    .type-badge.type-guide { background: #e4eaf4; color: #16243e; }
+    .results-note { font-size: 12px; color: var(--text3); padding: 0 4px 8px; }
+
+    /* ---- Rich text shared by FAQ answers and the guide reader ---- */
+    .rt-heading { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.35; margin: 22px 0 4px; }
+    .rt-heading:first-child { margin-top: 4px; }
+    .inline-guide-link { display: inline; background: none; border: none; color: var(--red); font-size: inherit; font-family: var(--font); font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; text-align: left; }
+    .guide-gone { color: var(--text3); font-style: italic; }
+
+    /* ---- Guide reader (own full-screen view) ---- */
+    .reader { position: fixed; inset: 0; z-index: 100; background: var(--surface); display: none; flex-direction: column; }
+    .reader.open { display: flex; }
+    .reader-header { background: var(--red); flex-shrink: 0; padding: calc(var(--safe-top) + 10px) 0 10px; }
+    .reader-header-inner { max-width: 680px; margin: 0 auto; padding: 0 12px; display: flex; align-items: center; gap: 12px; }
+    .reader-back { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 20px; padding: 6px 14px 6px 10px; font-size: 14px; font-weight: 600; font-family: var(--font); cursor: pointer; }
+    .reader-back:active { background: rgba(255,255,255,0.3); }
+    .reader-kind { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 500; }
+    .reader-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    .reader-inner { max-width: 680px; margin: 0 auto; padding: 18px 16px calc(var(--safe-bottom) + 32px); }
+    .reader-title-row { display: flex; align-items: flex-start; gap: 12px; margin: 10px 0 14px; }
+    .reader-title { font-size: 21px; font-weight: 700; line-height: 1.25; color: var(--text); letter-spacing: -0.2px; padding-top: 2px; }
+    .reader-lead { font-size: 15px; line-height: 1.65; color: var(--text2); }
+    .reader-lead.has-body { padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+    .reader-toc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px 6px; margin-bottom: 16px; }
+    .reader-toc-label { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 4px; }
+    .reader-toc-item { display: block; width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--border); padding: 9px 0; font-size: 14px; font-family: var(--font); color: var(--red-dark); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .reader-toc-label + .reader-toc-item { border-top: none; }
+    .reader-toc-item:active { opacity: 0.7; }
+    .reader-body, .reader-lead { font-size: 14.5px; line-height: 1.75; }
+    .reader-lead { font-size: 15px; }
+    .reader-body p, .reader-lead p { margin-top: 10px; }
+    .reader-body p:first-child, .reader-lead p:first-child { margin-top: 0; }
+    .reader-body ol, .reader-lead ol { margin: 8px 0 8px 20px; display: flex; flex-direction: column; gap: 4px; }
+    .reader-body ul, .reader-lead ul { margin: 8px 0 8px 20px; display: flex; flex-direction: column; gap: 4px; list-style: disc; }
+    .reader-body strong, .reader-lead strong { font-weight: 700; color: var(--text); }
+    .reader-body em, .reader-lead em { font-style: italic; }
+    .reader-body u, .reader-lead u { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -160,14 +198,14 @@
     </div>
     <div class="tabs">
       <button class="tab-btn active" id="tab-faqs" onclick="switchTab('faqs')">FAQs</button>
-      <button class="tab-btn" id="tab-tips" onclick="switchTab('tips')">Top tips</button>
+      <button class="tab-btn" id="tab-guides" onclick="switchTab('guides')">Guides</button>
       <button class="tab-btn" id="tab-tools" onclick="switchTab('tools')">🛠 Tools</button>
     </div>
   </header>
   <div class="sync-bar" id="syncBar"></div>
   <div class="content">
     <div class="pane active" id="pane-faqs"></div>
-    <div class="pane" id="pane-tips"></div>
+    <div class="pane" id="pane-guides"></div>
     <div class="pane" id="pane-tools">
       <div class="section-label">Calculators &amp; tools</div>
       <div class="tools-grid">
@@ -192,6 +230,16 @@
   </div>
 </div>
 
+<div class="reader" id="reader" aria-hidden="true">
+  <div class="reader-header">
+    <div class="reader-header-inner">
+      <button class="reader-back" onclick="history.back()">‹ Back</button>
+      <div class="reader-kind" id="readerKind"></div>
+    </div>
+  </div>
+  <div class="reader-scroll" id="readerScroll"><div class="reader-inner" id="readerInner"></div></div>
+</div>
+
 <script>
 // ─────────────────────────────────────────────
 // DROPBOX CONFIG
@@ -207,6 +255,13 @@ const DBX_CACHE_KEY  = 'crewtips_dbx_cache';
 let appData      = null;
 let currentTab   = 'faqs';
 let searchTerm   = '';
+
+// Guide types. The label shown to pilots (FAQ links, badges, reader header)
+// comes from here only, so renaming "Top Tip" later is a one-line change.
+const GUIDE_TYPES = {
+  tip:   { label: 'Top Tip', icon: '💡' },
+  guide: { label: 'Guide',   icon: '📘' }
+};
 
 // Dim other FAQs + raise/shadow the open one while it's expanded.
 // Set to false to switch this off entirely without touching any other code.
@@ -320,7 +375,7 @@ function matchFaq(f, t) {
 // ─────────────────────────────────────────────
 // RENDER
 // ─────────────────────────────────────────────
-function render() { renderFaqs(); renderTips(); renderQuickLinks(); }
+function render() { renderFaqs(); renderGuides(); renderQuickLinks(); }
 
 // Quick Links now live on their own page (links.html), same pattern as
 // the Crew Rest Calculator — this just shows/hides the entry card in the
@@ -361,25 +416,40 @@ function renderFaqs() {
   pane.innerHTML = '<div class="section-label">Questions &amp; answers</div>' + list.map(f => faqCard(f)).join('');
 }
 
-// Runs on text that has ALREADY been through escHtml() (via hl()) — safe
-// to inject real HTML tags at this point, since any HTML the user typed
-// literally has already been neutralised.
-function formatInline(text) {
-  text = text.replace(/\[tip:([^\]]+)\]/g, (match, title) => {
-    const tip = appData.tips.find(t => t.title.toLowerCase() === title.toLowerCase().trim());
-    if (!tip) return '<span style="color:var(--red);font-style:italic">[tip not found: ' + title + ']</span>';
-    return '<button class="inline-tip-link" onclick="jumpToTip(' + tip.id + ')">' + escHtml(tip.title) + ' →</button>';
-  });
-  text = text.replace(/\[b\](.+?)\[\/b\]/g, '<strong>$1</strong>');
-  text = text.replace(/\[i\](.+?)\[\/i\]/g, '<em>$1</em>');
-  text = text.replace(/\[u\](.+?)\[\/u\]/g, '<u>$1</u>');
-  return text;
+// Builds the HTML for one line of rich text.
+//
+// Tags are lifted out into placeholders BEFORE search highlighting runs,
+// then put back afterwards. Without this, searching for a letter that
+// appears inside a tag (e.g. "b", "h", or "guide") would wrap that letter
+// in <mark> and break the tag. Placeholders use private-use characters
+// that can never appear in something a pilot types into the search box.
+function guideGone() { return '<span class="guide-gone">(guide no longer available)</span>'; }
+
+function guideLinkHtml(id) {
+  const g = findGuide(id);
+  if (!g) return guideGone();
+  return '<button class="inline-guide-link" onclick="openGuide(\'' + escHtml(String(g.id)) + '\')">' + escHtml(g.title) + ' →</button>';
 }
 
-// Shared rich-text engine — used for both FAQ answers and (now) Top Tip
-// full articles, so both get the same formatting/bullets/images/tip-links
-// support for free rather than duplicating this logic.
-function renderRichText(text) {
+function richLine(raw) {
+  const tokens = [];
+  const hold = html => { tokens.push(html); return '\uE000' + String.fromCharCode(0xE100 + tokens.length - 1) + '\uE001'; };
+
+  let s = raw.replace(/\[guide:([^\]]+)\]/g, (m, id) => hold(guideLinkHtml(id.trim())));
+  [['b', 'strong'], ['i', 'em'], ['u', 'u']].forEach(([tag, el]) => {
+    const re = new RegExp('\\[' + tag + '\\](.+?)\\[\\/' + tag + '\\]', 'g');
+    s = s.replace(re, (m, inner) => hold('<' + el + '>') + inner + hold('</' + el + '>'));
+  });
+
+  let html = hl(s, searchTerm);
+  return html.replace(/\uE000([\uE100-\uF8FF])\uE001/g, (m, ch) => tokens[ch.charCodeAt(0) - 0xE100]);
+}
+
+// Shared rich-text engine — used for FAQ answers and for guide/tip bodies,
+// so both get the same formatting/bullets/images/guide-links/headings.
+// Pass { headings: [] } to collect the [h]...[/h] headings (for a contents list).
+let headingSeq = 0;
+function renderRichText(text, opts) {
   let html = ''; let listType = null;
   let currentSet = null; // { title, items: [{url, title}] } while inside [imgset:...]...[/imgset]
   const closeList = () => { if (listType) { html += (listType === 'ol' ? '</ol>' : '</ul>'); listType = null; } };
@@ -427,17 +497,26 @@ function renderRichText(text) {
 
     if (currentSet) return; // ignore stray non-image lines inside a set
 
+    const headingMatch = trimmed.match(/^\[h\](.+)\[\/h\]$/);
+    if (headingMatch) {
+      closeList();
+      const hid = 'rt-h-' + (++headingSeq);
+      if (opts && opts.headings) opts.headings.push({ id: hid, text: headingMatch[1].replace(/\[\/?[biu]\]/g, '').trim() });
+      html += '<h3 class="rt-heading" id="' + hid + '">' + richLine(headingMatch[1]) + '</h3>';
+      return;
+    }
+
     const numMatch = line.match(/^(\d+)\.\s+(.+)/);
     const bulletMatch = line.match(/^-\s+(.+)/);
     if (numMatch) {
       if (listType !== 'ol') { closeList(); html += '<ol>'; listType = 'ol'; }
-      html += '<li>' + formatInline(hl(numMatch[2], searchTerm)) + '</li>';
+      html += '<li>' + richLine(numMatch[2]) + '</li>';
     } else if (bulletMatch) {
       if (listType !== 'ul') { closeList(); html += '<ul>'; listType = 'ul'; }
-      html += '<li>' + formatInline(hl(bulletMatch[1], searchTerm)) + '</li>';
+      html += '<li>' + richLine(bulletMatch[1]) + '</li>';
     } else {
       closeList();
-      if (line.trim()) html += '<p>' + formatInline(hl(line, searchTerm)) + '</p>';
+      if (line.trim()) html += '<p>' + richLine(line) + '</p>';
     }
   });
   closeList();
@@ -454,16 +533,18 @@ function faqCard(f) {
       + '</div>';
   }
   let seeAlsoHtml = '';
-  if (f.seeAlso) {
-    const tip = appData.tips.find(t => t.id == f.seeAlso);
-    if (tip) {
-      seeAlsoHtml = '<div class="see-also-box" onclick="jumpToTip(' + tip.id + ')">'
-        + '<div class="see-also-label">See also</div>'
-        + '<div class="see-also-inner">'
-        + '<div class="see-also-icon" style="background:' + catIconBg(tip.cat) + '">' + escHtml(tip.icon||'💡') + '</div>'
-        + '<div class="see-also-text"><div class="see-also-title">' + escHtml(tip.title) + '</div><div class="see-also-sub">Top tip</div></div>'
-        + '<div class="see-also-arrow">›</div></div></div>';
-    }
+  const related = (Array.isArray(f.seeAlso) ? f.seeAlso : []).map(findGuide).filter(Boolean);
+  if (related.length) {
+    seeAlsoHtml = '<div class="see-also-box"><div class="see-also-label">See also</div>'
+      + related.map(g => {
+        const info = guideTypeInfo(g);
+        return '<div class="see-also-row" onclick="openGuide(\'' + escHtml(String(g.id)) + '\')">'
+          + '<div class="see-also-icon" style="background:' + catIconBg(g.cat) + '">' + escHtml(g.icon || info.icon) + '</div>'
+          + '<div class="see-also-text"><div class="see-also-title"><span class="see-also-type">' + escHtml(info.label) + ':</span> ' + escHtml(g.title) + '</div>'
+          + '<div class="see-also-sub">' + escHtml(catName(g.cat)) + '</div></div>'
+          + '<div class="see-also-arrow">›</div></div>';
+      }).join('')
+      + '</div>';
   }
   const catColor = categoryColorInfo(f.cat);
   return '<div class="faq-card" id="faqc-' + f.id + '"><div class="faq-card-inner"><div class="faq-header" onclick="toggleFaq(' + f.id + ')" id="faqh-' + f.id + '">'
@@ -639,96 +720,161 @@ function retrySetItem(retryBtn) {
   revealSetItem(el);
 }
 
-// Tracks a pending "return to this FAQ" state after a [tip:...] jump —
-// set when jumpToTip pushes a history entry, cleared either when the
-// pilot presses back (consuming it, see popstate handler below) or when
-// they manually navigate away via a tab button (see switchTab), which
-// invalidates it and silently pops the now-stale entry so the *next*
-// back press behaves like a normal exit rather than needing two presses.
-let pendingTipReturn = null;
+// ─────────────────────────────────────────────
+// GUIDES (Top Tips + Guides)
+// ─────────────────────────────────────────────
+function guidesList() { return (appData && Array.isArray(appData.guides)) ? appData.guides : []; }
+function findGuide(id) { return guidesList().find(g => String(g.id) === String(id)); }
+function guideTypeInfo(g) { return GUIDE_TYPES[g.type === 'tip' ? 'tip' : 'guide']; }
 
-function jumpToTip(id) {
-  // Only worth a history entry if this jump is actually taking the pilot
-  // away from an open FAQ on the FAQs tab — that's the case the back
-  // button previously broke. Jumping between tips while already on the
-  // Tips tab isn't a tab change, so nothing to wire up there.
-  if (currentTab === 'faqs') {
-    const openBody = document.querySelector('.faq-body.open');
-    if (openBody) {
-      pendingTipReturn = { faqId: openBody.id.replace('body-', '') };
-      history.pushState({ crewtipsTipJump: true }, '');
+// Strips rich-text tags so a teaser can be shown as plain text in a list row.
+function plainText(s) {
+  return String(s || '')
+    .replace(/\[guide:[^\]]*\]/g, '')
+    .replace(/\[\/?[biuh]\]/g, '')
+    .replace(/\s*\n+\s*/g, ' ')
+    .trim();
+}
+
+function matchGuide(g, t) {
+  const tl = t.toLowerCase();
+  if ((g.title || '').toLowerCase().includes(tl)) return 3;
+  if ((g.text || '').toLowerCase().includes(tl)) return 2;
+  if ((g.body || '').toLowerCase().includes(tl)
+      || catName(g.cat).toLowerCase().includes(tl)
+      || guideTypeInfo(g).label.toLowerCase().includes(tl)) return 1;
+  return 0;
+}
+
+function guideCard(g) {
+  const info = guideTypeInfo(g);
+  const cc = categoryColorInfo(g.cat);
+  return '<div class="guide-card" onclick="openGuide(\'' + escHtml(String(g.id)) + '\')">'
+    + '<div class="guide-icon" style="background:' + cc.bg + '">' + escHtml(g.icon || info.icon) + '</div>'
+    + '<div class="guide-card-body"><div class="guide-card-title">' + hl(g.title, searchTerm) + '</div>'
+    + '<div class="guide-card-text">' + hl(plainText(g.text), searchTerm) + '</div>'
+    + '<div class="guide-badges"><span class="type-badge type-' + (g.type === 'tip' ? 'tip' : 'guide') + '">' + escHtml(info.label) + '</span>'
+    + '<span class="guide-badge" style="background:' + cc.bg + ';color:' + cc.text + '">' + escHtml(catName(g.cat)) + '</span></div></div>'
+    + '<div class="guide-chevron">›</div></div>';
+}
+
+function renderGuides() {
+  const pane = document.getElementById('pane-guides');
+  const all = guidesList();
+  if (!all.length) { pane.innerHTML = '<div class="empty"><div class="empty-icon">📘</div><p>No guides yet.</p></div>'; return; }
+
+  if (searchTerm) {
+    // One mixed list while searching, best matches first (title, then teaser, then the rest)
+    const hits = all.map((g, i) => ({ g, i, score: matchGuide(g, searchTerm) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score || a.i - b.i);
+    if (!hits.length) {
+      pane.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No guides match <strong>"' + escHtml(searchTerm) + '"</strong></p></div>';
+      return;
     }
+    pane.innerHTML = '<div class="section-label">Search results</div>' + hits.map(x => guideCard(x.g)).join('');
+    return;
   }
-  switchTab('tips', false);
-  setTimeout(() => {
-    const el = document.getElementById('tip-' + id);
-    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('tip-highlight'); setTimeout(() => el.classList.remove('tip-highlight'), 2000); }
-    const article = document.getElementById('tip-article-' + id);
-    if (article && !article.classList.contains('open')) toggleTipArticle(id);
-  }, 120);
+
+  const tips = all.filter(g => g.type === 'tip');
+  const guides = all.filter(g => g.type !== 'tip');
+  pane.innerHTML = (tips.length ? '<div class="section-label">Top tips</div>' + tips.map(guideCard).join('') : '')
+    + (guides.length ? '<div class="section-label"' + (tips.length ? ' style="margin-top:14px"' : '') + '>Guides</div>' + guides.map(guideCard).join('') : '');
+}
+
+// ─────────────────────────────────────────────
+// GUIDE READER
+// ─────────────────────────────────────────────
+// Each opened guide is one history entry. readerStack mirrors those entries
+// so the back button (or the Back control, which just calls history.back())
+// returns to the previous guide at the scroll position it was left at, and
+// finally to whatever was underneath — the Guides list or an open FAQ, which
+// stay exactly as they were because the reader is an overlay.
+let readerStack = [];   // [{ id, scroll }]
+let lastGuideOpen = 0;
+
+function openGuide(id) {
+  const g = findGuide(id);
+  if (!g) return;
+  const now = Date.now();
+  const top = readerStack[readerStack.length - 1];
+  if (top && String(top.id) === String(g.id) && now - lastGuideOpen < 500) return; // double-tap guard
+  lastGuideOpen = now;
+  if (top) top.scroll = document.getElementById('readerScroll').scrollTop;
+  readerStack.push({ id: String(g.id), scroll: 0 });
+  history.pushState({ crewtipsReader: true }, '');
+  showReader(g, 0);
+}
+
+function showReader(g, scrollTo) {
+  const info = guideTypeInfo(g);
+  const headings = [];
+  const hasBody = !!(g.body && g.body.trim());
+  const bodyHtml = hasBody ? renderRichText(g.body, { headings }) : '';
+  const leadHtml = renderRichText(g.text || '');
+  const cc = categoryColorInfo(g.cat);
+
+  const toc = (g.showContents && headings.length)
+    ? '<nav class="reader-toc"><div class="reader-toc-label">Contents</div>'
+      + headings.map(h => '<button class="reader-toc-item" onclick="jumpToHeading(\'' + h.id + '\')">' + escHtml(h.text) + '</button>').join('')
+      + '</nav>'
+    : '';
+
+  document.getElementById('readerKind').textContent = info.label;
+  document.getElementById('readerInner').innerHTML =
+    '<div class="guide-badges"><span class="type-badge type-' + (g.type === 'tip' ? 'tip' : 'guide') + '">' + escHtml(info.label) + '</span>'
+    + '<span class="guide-badge" style="background:' + cc.bg + ';color:' + cc.text + '">' + escHtml(catName(g.cat)) + '</span></div>'
+    + '<div class="reader-title-row"><div class="guide-icon" style="background:' + cc.bg + '">' + escHtml(g.icon || info.icon) + '</div>'
+    + '<h1 class="reader-title">' + escHtml(g.title) + '</h1></div>'
+    + '<div class="reader-lead' + (hasBody ? ' has-body' : '') + '">' + leadHtml + '</div>'
+    + toc
+    + (hasBody ? '<div class="reader-body">' + bodyHtml + '</div>' : '');
+
+  const reader = document.getElementById('reader');
+  reader.classList.add('open');
+  reader.setAttribute('aria-hidden', 'false');
+  document.getElementById('readerScroll').scrollTop = scrollTo || 0;
+}
+
+function hideReader() {
+  const reader = document.getElementById('reader');
+  reader.classList.remove('open');
+  reader.setAttribute('aria-hidden', 'true');
+  document.getElementById('readerInner').innerHTML = '';
+}
+
+function jumpToHeading(hid) {
+  const el = document.getElementById(hid);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 window.addEventListener('popstate', () => {
-  if (pendingTipReturn) {
-    const faqId = pendingTipReturn.faqId;
-    pendingTipReturn = null;
-    switchTab('faqs', false);
-    const card = document.getElementById('faqc-' + faqId);
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-  // No pending return — nothing to restore, so let this back press fall
-  // through to its normal effect (exiting the app).
+  if (!readerStack.length) return; // nothing open — let the back press behave normally
+  readerStack.pop();
+  const prev = readerStack[readerStack.length - 1];
+  const g = prev ? findGuide(prev.id) : null;
+  if (g) showReader(g, prev.scroll);
+  else { readerStack = []; hideReader(); }
 });
 
-function renderTips() {
-  const list = appData.tips;
-  const pane = document.getElementById('pane-tips');
-  if (!list.length) { pane.innerHTML = '<div class="empty"><div class="empty-icon">💡</div><p>No tips yet.</p></div>'; return; }
-  pane.innerHTML = '<div class="section-label">Top tips from the fleet</div>'
-    + list.map(t => {
-      const hasArticle = t.body && t.body.trim();
-      const clickAttr = hasArticle ? ' onclick="toggleTipArticle(' + t.id + ')" style="cursor:pointer"' : '';
-      const catColor = categoryColorInfo(t.cat);
-      return '<div class="tip-card" id="tip-' + t.id + '">'
-        + '<div class="tip-icon" style="background:' + catColor.bg + '">' + escHtml(t.icon||'💡') + '</div>'
-        + '<div class="tip-body"' + clickAttr + '><div class="tip-title">' + escHtml(t.title) + '</div>'
-        + '<div class="tip-text">' + escHtml(t.text) + '</div>'
-        + (hasArticle ? '<div class="tip-readmore" id="tip-readmore-' + t.id + '">Read more <span class="tip-readmore-chevron">▾</span></div>' : '')
-        + '<span class="tip-badge" style="background:' + catColor.bg + ';color:' + catColor.text + '">' + escHtml(catName(t.cat)) + '</span>'
-        + (hasArticle ? '<div class="tip-article" id="tip-article-' + t.id + '">' + renderRichText(t.body) + '</div>' : '')
-        + '</div></div>';
-    }).join('');
-}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && readerStack.length) history.back();
+});
 
-function toggleTipArticle(id) {
-  const article = document.getElementById('tip-article-' + id);
-  const readmore = document.getElementById('tip-readmore-' + id);
-  if (!article) return;
-  const isOpen = article.classList.contains('open');
-  article.classList.toggle('open', !isOpen);
-  readmore.classList.toggle('open', !isOpen);
-}
-
-function switchTab(tab, isManual = true) {
-  if (isManual && pendingTipReturn) {
-    // Pilot deliberately navigated away rather than pressing back — the
-    // "return to FAQ" state no longer applies. Clear it and silently pop
-    // the now-stale pushed entry so the browser's back stack is left
-    // clean, rather than requiring a second back press later to exit.
-    pendingTipReturn = null;
-    history.back();
-  }
+function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === 'tab-' + tab));
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
   const searchWrap = document.getElementById('searchWrap');
   if (searchWrap) searchWrap.style.display = tab === 'tools' ? 'none' : 'block';
+  const input = document.getElementById('searchInput');
+  if (input) input.placeholder = tab === 'guides' ? 'Search guides…' : 'Search FAQs, keywords…';
 }
 
 // DEFAULT DATA
 // ─────────────────────────────────────────────
 function getDefaultData() {
-  return { version:'1.0.0', categories:{ fusion:'Fusion', roster:'Roster', pay:'Pay & expenses', medical:'Medical', it:'IT & systems', general:'General' }, faqs:[], tips:[], quickLinks:[] };
+  return { version:'1.0.0', categories:{ fusion:'Fusion', roster:'Roster', pay:'Pay & expenses', medical:'Medical', it:'IT & systems', general:'General' }, faqs:[], guides:[], quickLinks:[] };
 }
 
 init();
