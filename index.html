@@ -144,6 +144,7 @@
     /* ---- Rich text shared by FAQ answers and the guide reader ---- */
     .rt-heading { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.35; margin: 22px 0 4px; }
     .rt-heading:first-child { margin-top: 4px; }
+    .inline-ext-link { color: var(--red); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
     .inline-guide-link { display: inline; background: none; border: none; color: var(--red); font-size: inherit; font-family: var(--font); font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; text-align: left; }
     .guide-gone { color: var(--text3); font-style: italic; }
 
@@ -425,6 +426,16 @@ function renderFaqs() {
 // that can never appear in something a pilot types into the search box.
 function guideGone() { return '<span class="guide-gone">(guide no longer available)</span>'; }
 
+// [link:https://example.com|Label] - external link, http/https only.
+// Anything else (javascript:, data:, a malformed tag) is left as plain text.
+function extLinkHtml(url, label) {
+  url = String(url || '').trim();
+  if (!/^https?:\/\/[^\s"'<>]+$/i.test(url)) return null;
+  label = String(label || '').trim() || url;
+  const isMap = /^https?:\/\/(([a-z0-9-]+\.)?google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps|maps\.apple\.com)/i.test(url);
+  return '<a class="inline-ext-link" href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer">' + (isMap ? '\uD83D\uDCCD ' : '') + escHtml(label) + '</a>';
+}
+
 function guideLinkHtml(id) {
   const g = findGuide(id);
   if (!g) return guideGone();
@@ -435,7 +446,11 @@ function richLine(raw) {
   const tokens = [];
   const hold = html => { tokens.push(html); return '\uE000' + String.fromCharCode(0xE100 + tokens.length - 1) + '\uE001'; };
 
-  let s = raw.replace(/\[guide:([^\]]+)\]/g, (m, id) => hold(guideLinkHtml(id.trim())));
+  let s = raw.replace(/\[link:([^\]|]+)(?:\|([^\]]*))?\]/g, (m, url, label) => {
+    const h = extLinkHtml(url, label);
+    return h ? hold(h) : m;
+  });
+  s = s.replace(/\[guide:([^\]]+)\]/g, (m, id) => hold(guideLinkHtml(id.trim())));
   [['b', 'strong'], ['i', 'em'], ['u', 'u']].forEach(([tag, el]) => {
     const re = new RegExp('\\[' + tag + '\\](.+?)\\[\\/' + tag + '\\]', 'g');
     s = s.replace(re, (m, inner) => hold('<' + el + '>') + inner + hold('</' + el + '>'));
@@ -730,6 +745,7 @@ function guideTypeInfo(g) { return GUIDE_TYPES[g.type === 'tip' ? 'tip' : 'guide
 // Strips rich-text tags so a teaser can be shown as plain text in a list row.
 function plainText(s) {
   return String(s || '')
+    .replace(/\[link:[^\]|]*(?:\|([^\]]*))?\]/g, (m, l) => l || '')
     .replace(/\[guide:[^\]]*\]/g, '')
     .replace(/\[\/?[biuh]\]/g, '')
     .replace(/\s*\n+\s*/g, ' ')
