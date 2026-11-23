@@ -456,7 +456,9 @@ function richLine(raw) {
     s = s.replace(re, (m, inner) => hold('<' + el + '>') + inner + hold('</' + el + '>'));
   });
 
-  let html = hl(s, searchTerm);
+  // No search highlighting inside opened answers/guides (distracting in long text);
+  // highlighting is kept for list titles/teasers/questions only.
+  let html = escHtml(s);
   return html.replace(/\uE000([\uE100-\uF8FF])\uE001/g, (m, ch) => tokens[ch.charCodeAt(0) - 0xE100]);
 }
 
