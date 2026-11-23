@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crewtips-v11';
+const CACHE_NAME = 'crewtips-v12';
 
 const STATIC_ASSETS = [
   './',

@@ -84,7 +84,7 @@
     .faq-link { display: block; font-size: 13px; color: var(--red-dark); text-decoration: none; padding: 6px 0; border-bottom: 1px solid var(--border); }
     .faq-link:last-child { border-bottom: none; }
     .faq-link:active { opacity: 0.7; }
-    .cross-hit { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; color: var(--red-dark); font-size: 13px; font-weight: 600; font-family: var(--font); cursor: pointer; text-align: left; }
+    .cross-hit { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--red-dark); font-size: 13px; font-weight: 600; font-family: var(--font); cursor: pointer; text-align: left; }
     .cross-hit:active { opacity: 0.7; }
     .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
     .empty-icon { font-size: 36px; margin-bottom: 10px; }
@@ -423,10 +423,13 @@ function renderFaqs() {
   const pane = document.getElementById('pane-faqs');
   const banner = guideHitsBanner();
   if (!list.length) {
+    // No FAQ results: the Guides line goes first, so it isn't pushed down behind the keyboard
     pane.innerHTML = banner + '<div class="empty"><div class="empty-icon">🔍</div><p>No FAQs match <strong>"' + escHtml(searchTerm) + '"</strong></p></div>';
     return;
   }
-  pane.innerHTML = banner + '<div class="section-label">Questions &amp; answers</div>' + list.map(f => faqCard(f)).join('');
+  // While searching, the "Questions & answers" label is dropped to save height, and the
+  // Guides line goes after the FAQ results so FAQ answers come first.
+  pane.innerHTML = (searchTerm ? '' : '<div class="section-label">Questions &amp; answers</div>') + list.map(f => faqCard(f)).join('') + banner;
 }
 
 // Builds the HTML for one line of rich text.
