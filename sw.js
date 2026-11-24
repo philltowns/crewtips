@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crewtips-v12';
+const CACHE_NAME = 'crewtips-v13';
 
 const STATIC_ASSETS = [
   './',
@@ -29,6 +29,28 @@ self.addEventListener('activate', event => {
   );
   self.clients.claim();
 });
+
+const NETWORK_TIMEOUT_MS = 4000;
+
+function networkFirstWithTimeout(event, request) {
+  const networkFetch = fetch(request).then(response => {
+    if (response && response.status === 200) {
+      const clone = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+    }
+    return response;
+  });
+  // Keep the worker alive so a slow request can still refresh the cache,
+  // and make sure a failure here is never reported as an unhandled error.
+  event.waitUntil(networkFetch.catch(() => {}));
+
+  const timeout = new Promise(resolve => setTimeout(() => resolve(null), NETWORK_TIMEOUT_MS));
+  return Promise.race([networkFetch.catch(() => null), timeout]).then(response => {
+    if (response) return response;
+    // Timed out or failed: saved copy if we have one, otherwise keep waiting for the network
+    return caches.match(request).then(cached => cached || networkFetch);
+  });
+}
 
 const IMAGE_EXT_RE = /\.(jpe?g|png|webp|gif)(\?|$)/i;
 
@@ -73,19 +95,13 @@ self.addEventListener('fetch', event => {
 
   // HTML files and manifest.json — network first so updates (including
   // manifest changes like the orientation setting) are always picked up,
-  // rather than being served from a stale cached copy indefinitely
+  // rather than being served from a stale cached copy indefinitely.
+  // But with a time limit: on a slow or half-dead connection the request can
+  // hang without ever failing, which left the app stuck on its opening screen.
+  // After NETWORK_TIMEOUT_MS we show the saved copy instead, and the network
+  // request carries on in the background to refresh the cache for next time.
   if (url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname.endsWith('manifest.json')) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
+    event.respondWith(networkFirstWithTimeout(event, event.request));
     return;
   }
 
